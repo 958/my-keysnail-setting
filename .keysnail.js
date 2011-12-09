@@ -25,7 +25,7 @@ prompt.migemoMinWordLength = 3;
                 util.message('Load sub setting files: ' + file);
                 userscript.require(file);
             });
-    } catch (ex) { util.fbug(ex); }
+    } catch (ex) { }
 })();
 
 //}}%PRESERVE%
@@ -83,7 +83,8 @@ key.setGlobalKey('C-p', function (ev) {
 
 key.setGlobalKey(['C-m', 't'], function (ev, arg) {
     style.toggle(<><![CDATA[
-        #TabsToolbar { visibility:collapse; }
+//        #TabsToolbar { visibility:collapse; }
+        #tabbrowser-tabs { visibility:collapse; }
     ]]></>);
 }, 'タブ表示をトグル');
 
@@ -227,8 +228,8 @@ key.setGlobalKey(['C-,', 't', 'a'], function (ev, arg) {
 }, '単語翻訳');
 
 key.setGlobalKey(['C-,', 't', 'i'], function (ev, arg) {
-    ext.exec("google-itranslate", arg, ev);
-}, 'インクリメンタル単語翻訳');
+    ext.exec("mstranslator-open-prompt", arg, ev);
+}, 'MSTranslator - プロンプトを表示');
 
 key.setGlobalKey(['C-,', 'f', 'o'], function (ev, arg) {
     ext.exec("firebug-open", arg, ev);
@@ -263,12 +264,16 @@ key.setGlobalKey(['C-,', 'g', 't'], function (ev, arg) {
 }, 'Google Tasks - Show tasks', true);
 
 key.setGlobalKey(['C-,', 'g', 'm'], function (ev, arg) {
-    ext.exec("gmail-checker-mail-list", arg, ev);
-}, 'Gmail - 新着メールを表示', true);
+    ext.exec("gpum-show-unread-list", arg, ev);
+}, 'gpum - 新着メールを表示', true);
 
 key.setGlobalKey(['C-,', 'g', 'M'], function (ev, arg) {
-    openUILinkIn('http://mail.google.com/mail/?view=cm&tf=1&fs=1', 'tab');
-}, 'Gmail - 新規メールを作成', true);
+    ext.exec("gpum-compose-mail", arg, ev);
+}, 'gpum - 新規メールを作成', true);
+
+key.setGlobalKey(['C-,', 'g', 'C-m'], function (ev, arg) {
+    ext.exec("gpum-login", arg, ev);
+}, 'gpum - ログイン', true);
 
 key.setGlobalKey(['C-,', 'r', '.'], function(ev, arg) {
     plugins.heavens.dotnet.open();
@@ -456,6 +461,10 @@ key.setViewKey('R', function (ev) {
 key.setViewKey('s', function (ev, arg) {
     ext.exec('google-search', arg, ev);
 }, 'Search with Suggest');
+
+key.setViewKey('S', function (ev, arg) {
+    ext.exec('google-search-in-site', arg, ev);
+}, 'Site Search with Suggest');
 
 key.setViewKey('/', function (ev, arg) {
     ext.exec('xulmigemo-find-init', arg, ev);

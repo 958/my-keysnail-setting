@@ -91,13 +91,16 @@ plugins.options["prefer_ldrize.keymap"] = {
     },
 };
 */
-plugins.options["ldrnail.keybind"] = {
-    "j" : 'next', "k" : 'prev', "p" : 'pin', "v" : 'view', "o" : 'open', 'l': 'list', 'S': 'siteinfo',
-    "i" : function() {
-        let info = plugins.ldrnail.currentSiteinfo;
-        let view = plugins.ldrnail.currentSiteinfo['view'];
-        let link = plugins.ldrnail.currentSiteinfo['link'];
 
+plugins.options["ldrnail.keybind"] = {
+    "j" : 'next', "k" : 'prev', "p" : 'pin', "v" : 'view', "o" : 'open', 'l': 'list',
+    'C-s': 'siteinfo',
+    "B": function() {
+        let link = plugins.ldrnail.currentLink;
+        if (link)
+            plugins.kungfloo.reblog(link, true, true);
+    },
+    "i" : function() {
         let titles = [];
         plugins.ldrnail.pinnedItemsOrCurrentItem.forEach(function(item){
             let url = plugins.ldrnail.getItemLink(item).href;
@@ -112,6 +115,9 @@ plugins.options["ldrnail.keybind"] = {
             display.prettyPrint('Add RIL \n' + titles.join('\n'), { timeout: 1000 });
     },
 };
+plugins.options["ldrnail.pre_open_filter"] = function(aURL)
+    (!/^https?:\/\/docs\.google\.com/.test(aURL) && /^[^?#]+\.pdf[$#?]/i.test(aURL)) ?
+        'https://docs.google.com/viewer?url='+encodeURIComponent(aURL)+'&embedded=true&chrome=true' : aURL;
 
 // tanything
 plugins.options["tanything_opt.keymap"] = util.extendDefaultKeymap({
@@ -219,7 +225,7 @@ plugins.options["ProgrammableGesture.actions"]=function(p){with(p){try{return{
     Right:chain('forward',{
       Left:chain('undo-closed-tab'),
       Down:chain({
-        Right:chain(action("ƒ\[ƒX‚ğ•\¦",function() openUILinkIn('view-source:' + content.location.href, 'tab'))),
+        Right:chain(action("ã‚½ãƒ¼ã‚¹ã‚’è¡¨ç¤º",function() openUILinkIn('view-source:' + content.location.href, 'tab'))),
       }),
     }),
     WheelUp:soon('select-previous-tab'),
@@ -230,7 +236,7 @@ plugins.options["ProgrammableGesture.actions"]=function(p){with(p){try{return{
 // HoK
 plugins.options['hok.actions'] = [
     ['m', 
-     '‰EƒNƒŠƒbƒNƒƒjƒ…[‚ğŠJ‚­',
+     M({ja:'å³ã‚¯ãƒªãƒƒã‚¯ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚’é–‹ã',en:'Open context menu'}),
      function (e) plugins.hok.openContextMenu(e),
      ],
     ['S',
@@ -259,10 +265,10 @@ plugins.options['history.max-results'] = 10000;
 plugins.options['dabbrev.next_key'] = 'C-n';
 plugins.options['dabbrev.prev_key'] = 'C-p';
 
-// Ÿ‚ÖA‘O‚Ö
+// æ¬¡ã¸ã€å‰ã¸
 plugins.options["follow-link.nextrel"] = 'a[rel="next"]';
 plugins.options["follow-link.prevrel"] = 'a[rel="prev"]';
 plugins.options["follow-link.targets"] = 'a[href], input:not([type="hidden"]), button';
-plugins.options["follow-link.nextpattern"] = "^Ÿ‚Ö|i‚Ş|^Ÿ.*|‘±|¨|\\bnext|>>|â|\\bnewer";
-plugins.options["follow-link.prevpattern"] = "\\bback|–ß‚é|^‘O.*|^<‘O|©|\\bprev|<<|á|\\bolder";
+plugins.options["follow-link.nextpattern"] = "^æ¬¡ã¸|é€²ã‚€|^æ¬¡.*|ç¶š|â†’|\\bnext|>>|â‰«|\\bnewer";
+plugins.options["follow-link.prevpattern"] = "\\bback|æˆ»ã‚‹|^å‰.*|^<å‰|â†|\\bprev|<<|â‰ª|\\bolder";
 

@@ -1,5 +1,5 @@
 
-//Å‹ß•Â‚¶‚½ƒ^ƒu
+//æœ€è¿‘é–‰ã˜ãŸã‚¿ãƒ–
 // http://d.hatena.ne.jp/mooz/20091123/p1
 ext.add("list-closed-tabs", function () {
     const fav = "chrome://mozapps/skin/places/defaultFavicon.png";
@@ -7,7 +7,7 @@ ext.add("list-closed-tabs", function () {
     var json = Cc["@mozilla.org/dom/json;1"].createInstance(Ci.nsIJSON);
     var closedTabs = [[tab.image || fav, tab.title] for each (tab in json.decode(ss.getClosedTabData(window)))];
     if (!closedTabs.length)
-        return void display.echoStatusBar("Å‹ß•Â‚¶‚½ƒ^ƒu‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½", 2000);
+        return void display.echoStatusBar("æœ€è¿‘é–‰ã˜ãŸã‚¿ãƒ–ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸ", 2000);
     prompt.selector({
         message    : "select tab to undo:",
         collection : closedTabs,
@@ -17,7 +17,7 @@ ext.add("list-closed-tabs", function () {
     });
 }, "List closed tabs");
 
-//ƒuƒ‰ƒEƒU‚Ì–ß‚é—š—ğ
+//ãƒ–ãƒ©ã‚¦ã‚¶ã®æˆ»ã‚‹å±¥æ­´
 // http://malblue.tumblr.com/post/349001250/tips-japanese-keysnail-github
 ext.add("list-tab-history", function () {
     var tabHistory = [];
@@ -50,7 +50,7 @@ ext.add("list-tab-history", function () {
     }); 
 },  'List tab history');
 
-// Ÿ‚ÖA‘O‚Ö
+// æ¬¡ã¸ã€å‰ã¸
 //https://gist.github.com/310776#file_follow_rel_keysnail.js
 function followRel(doc, rel, pattern) {
     let target = doc.querySelector(rel);
@@ -78,7 +78,7 @@ if (typeof gBrowser !== 'undefined' && gBrowser.tabContainer) {
         prev = cur;
         cur = gBrowser.tabContainer.selectedIndex;
     }, false);
-    ext.add("toggle-selected-tab", function() gBrowser.tabContainer.selectedIndex = prev, '‘I‘ğƒ^ƒu‚ğƒgƒOƒ‹‚·‚é');
+    ext.add("toggle-selected-tab", function() gBrowser.tabContainer.selectedIndex = prev, 'é¸æŠã‚¿ãƒ–ã‚’ãƒˆã‚°ãƒ«ã™ã‚‹');
 }
 
 // Plugin reload
@@ -100,19 +100,38 @@ ext.add("edit-userchrome-css", function(){
     let file = util.getSpecialDir("UChrm");
     file.append("userChrome.css");
     userscript.editFile(file.path);
-}, M({ja: "userChrome.css ‚ğ•ÒW", en: "Edit userChrome.css"}));
+}, M({ja: "userChrome.css ã‚’ç·¨é›†", en: "Edit userChrome.css"}));
 
 ext.add("toggle-scroll-bar", function(){
     style.toggle(<><![CDATA[
         @namespace html url("http://www.w3.org/1999/xhtml");
         html|html > scrollbar { visibility: collapse !important; }
     ]]></>, [style.XHTML, style.XUL].join(""), true);
-}, "ƒXƒNƒ[ƒ‹ƒo[‚Ì•\¦‚ğØ‚è‘Ö‚¦‚é");
+}, "ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ«ãƒãƒ¼ã®è¡¨ç¤ºã‚’åˆ‡ã‚Šæ›¿ãˆã‚‹");
 
 ext.add("google-search", function(ev, arg) {
     let engines = util.suggest.getEngines();
     let suggestEngines = [util.suggest.ss.getEngineByName("Google")];
     util.suggest.searchWithSuggest(engines[0], suggestEngines, "tab");
+}, "Google search");
+
+ext.add("google-search-in-site", function(ev, arg) {
+    let host = content.location.hostname;
+    let engines = util.suggest.getEngines();
+    let suggestEngines = [util.suggest.ss.getEngineByName("Google")];
+    prompt.reader({
+        message    : util.format("Search [%s]:", engines[0].name + ' (' + host + ')'),
+        group      : "web-search",
+        flags      : [0, 0],
+        style      : ["", style.prompt.url],
+        completer  : completer.fetch.suggest(suggestEngines, true),
+        callback   : function (query) {
+            if (query) {
+                let uri = engines[0].getSubmission(query + ' site:' + host, null).uri.spec;
+                openUILinkIn(uri, "tab");
+            }
+        }
+    });
 }, "Google search");
 
 // https://gist.github.com/285701
@@ -188,53 +207,6 @@ ext.add("option-migrator", function () {
     });
 }, "Option migrator");
 
-// http://d.hatena.ne.jp/sr10/20110129/1296290450
-(function(){
-    const targetLang = "ja"; // target lang to translate into
-    const alternativeLang = "en"; // if given word is in targetLang, use this instead as a target lang
-    const base = "https://www.googleapis.com/language/translate/v2?key=%s&q=%s&target=%s";
-    const apikey = "AIzaSyBq48p8NhFgaJ1DfUJ5ltbwLxeXpjEL86A";
-
-    let lastTranslated = "";
-
-    function translate(word, target, next) {
-        next("", "", " getting...");
-        let ep = util.format(base, apikey, encodeURIComponent(word), target);
-        util.httpGet(ep, false, function (res) {
-            if (res.status === 200) {
-                let json = JSON.parse(res.responseText);
-                let srclang = json.data.translations[0].detectedSourceLanguage;
-                if (target == srclang) {
-                    lookupword(word, alternativeLang);
-                } else {
-                    let result = json.data.translations[0].translatedText;
-                    next(srclang, target, result);
-                }
-            } else
-                next("", "", "ERROR!");
-        });
-    };
-    function echo(srclang, from, tglang, to)
-        display.echoStatusBar(srclang + " : " + from + " -> " + tglang + " : " + to);
-    function lookupword(word, target)
-        translate(word, target, function (src, tg, translated) echo(src, word, tg, lastTranslated = translated));
-    function read (aInitialInput) {
-        let prevText = "";
-        lastTranslated = "";
-        prompt.reader({
-            message         : "word or sentence to translate:",
-            initialinput    : aInitialInput,
-            onChange        : function (arg) {
-                let word = arg.textbox.value.trim();
-                if (word !== prevText)
-                    lookupword(prevText = word, targetLang);
-            },
-            callback: function (s) command.setClipboardText(lastTranslated),
-        });
-    }
-    ext.add("google-itranslate",function() read(content.document.getSelection().toString() || ""), "google itranslate");
-})();
-
 //https://gist.github.com/342285
 ext.add('input-html-tag', function inputTag(ev, arg) {
     const tags = ["a","address","applet","area","b","base","basefont","blockquote",
@@ -262,7 +234,7 @@ ext.add('input-html-tag', function inputTag(ev, arg) {
             input.scrollTop = scrollTop;
         }
     });
-}, "HTML ‚Ìƒ^ƒO‚ğ‘}“ü");
+}, "HTML ã®ã‚¿ã‚°ã‚’æŒ¿å…¥");
 
 ext.add('show-memory-report', function(ev, arg) {
     function addFigure(str) {
@@ -331,7 +303,7 @@ ext.add('go-nickname', function(ev, arg) {
         },
         callback: function (value) plugins.bmany.go(getShortcutOrURI(value, {}).spec, openMode)
     });
-}, 'ƒuƒbƒNƒ}[ƒN‚ÌƒL[ƒ[ƒh‚©‚ç‘¦À‚ÉŠJ‚­');
+}, 'ãƒ–ãƒƒã‚¯ãƒãƒ¼ã‚¯ã®ã‚­ãƒ¼ãƒ¯ãƒ¼ãƒ‰ã‹ã‚‰å³åº§ã«é–‹ã');
 
 // via http://www.pshared.net/diary/20091004.html
 ext.add('copy-page-info', function(ev, arg) {
@@ -372,7 +344,7 @@ ext.add('copy-page-info', function(ev, arg) {
                 template(content.document.title, content.location.href, yank);
         }
     });
-}, 'ƒ^ƒCƒgƒ‹‚âURL‚ğƒRƒs[');
+}, 'ã‚¿ã‚¤ãƒˆãƒ«ã‚„URLã‚’ã‚³ãƒ”ãƒ¼');
 
 ext.add('copy-gist-plugin-info', function(ev, arg) {
     const text = content.document.querySelectorAll('pre')[1].textContent;

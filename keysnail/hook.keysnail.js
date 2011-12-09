@@ -1,5 +1,5 @@
 
-// ’Zk URL ‚ğ goo.gl ‚Ö
+// çŸ­ç¸® URL ã‚’ goo.gl ã¸
 hook.addToHook('PluginLoaded', function() {
     if (!plugins.twitterClient) return;
 
@@ -8,9 +8,9 @@ hook.addToHook('PluginLoaded', function() {
             plugins.twitterClient.tweet((arg ? "" : '"' + content.document.title + '" - ') + url)
         );
 
-    // function ‚ğ’¼Ú“n‚µ‚Ä‚¢‚éˆ× ƒGƒNƒXƒe‚ğÄ“o˜^‚·‚é•K—v‚ª‚ ‚é
+    // function ã‚’ç›´æ¥æ¸¡ã—ã¦ã„ã‚‹ç‚º ã‚¨ã‚¯ã‚¹ãƒ†ã‚’å†ç™»éŒ²ã™ã‚‹å¿…è¦ãŒã‚ã‚‹
     ext.add("twitter-client-tweet-this-page", plugins.twitterClient.tweetWithTitleAndURL,
-            M({ja: '‚±‚Ìƒy[ƒW‚Ìƒ^ƒCƒgƒ‹‚Æ URL ‚ğg‚Á‚Ä‚Â‚Ô‚â‚­',
+            M({ja: 'ã“ã®ãƒšãƒ¼ã‚¸ã®ã‚¿ã‚¤ãƒˆãƒ«ã¨ URL ã‚’ä½¿ã£ã¦ã¤ã¶ã‚„ã',
                en: "Tweet with the title and URL of this page"}));
 });
 

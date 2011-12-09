@@ -1,6 +1,20 @@
-
+/*
+let (button = document.getElementById("appmenu-button")) {
+    if (button)
+        button.label = 'KeySnail';
+}
 style.register(<><![CDATA[
-    /* ‘I‘ð’†s‚ÌƒXƒ^ƒCƒ‹ */
+    #appmenu-button {
+        background-image: -moz-linear-gradient(rgb(155, 51, 115), rgb(115, 11, 75) 95%) !important;
+        border-color: rgba(95, 0, 55, 0.9) !important;
+    }
+    #appmenu-button:hover:not(:active):not([open]) {
+        box-shadow: 0pt 1px 0pt rgba(255, 255, 255, 0.1) inset, 0pt 0pt 2px 1px rgba(205, 101, 165, 0.7) inset, 0pt -1px 0pt rgba(205, 101, 165, 0.5) inset !important;
+    }
+}}></>);
+*/
+style.register(<><![CDATA[
+    /* é¸æŠžä¸­è¡Œã®ã‚¹ã‚¿ã‚¤ãƒ« */
     #keysnail-completion-list listitem[selected="true"], #keysnail-completion-list:focus>listitem[selected="true"] {
         background-color : #BFCEFA !important;
     }
@@ -8,20 +22,10 @@ style.register(<><![CDATA[
     #keysnail-prompt-textbox *|input {
         ime-mode : inactive !important;
     }
-    /* ƒvƒƒ“ƒvƒg‚ÆƒAƒhƒIƒ“ƒo[‚Ì•\Ž¦‚ðƒgƒOƒ‹‚·‚éˆ×‚ÌŽdž */
-    /*
-    #ks-bottom-separator {
-        border-top-width: 2px !important;
-        border-top-style: solid !important;
-        border-top-color: -moz-use-text-color !important;
-        -moz-border-top-colors: threedshadow threedhighlight !important;
-    }
-    */
     #addon-bar {
-        /*border-bottom: none !important;*/
         -moz-appearance: none !important;
     }
-    /* urlbar ‚Ì‚‚³‚ð’²® */
+    /* urlbar ã®é«˜ã•ã‚’èª¿æ•´ */
     #urlbar {
         margin: 0 !important;
         border: none !important;
@@ -29,38 +33,9 @@ style.register(<><![CDATA[
     #urlbar>toolbarbutton, #urlbar dropmarker {
         display: none !important;
     }
-    /* ƒAƒhƒIƒ“ƒo[‚Ì•Â‚¶‚éƒ{ƒ^ƒ“‚ð”ñ•\Ž¦‚É */
+    /* ã‚¢ãƒ‰ã‚ªãƒ³ãƒãƒ¼ã®é–‰ã˜ã‚‹ãƒœã‚¿ãƒ³ã‚’éžè¡¨ç¤ºã« */
     #addonbar-closebutton {
         display: none !important;
     }
 ]]></>);
-
-// ƒvƒƒ“ƒvƒg•\Ž¦Žž‚ÍƒAƒhƒIƒ“ƒo[‚ð”ñ•\Ž¦‚É‚·‚é
-/*
-if (!my.modifyAddonBar) {
-    my.modifyAddonBar = true;
-    let textbox = document.getElementById('keysnail-prompt-textbox');
-    if (textbox) {
-        let addonBar = document.getElementById('addon-bar');
-
-        let sep = document.createElement('hbox');
-        sep.id = 'ks-bottom-separator';
-        addonBar.parentNode.insertBefore(sep, addonBar);
-
-        textbox.addEventListener('focus', function(ev) {
-            addonBar.hidden = true;
-        }, false);
-        textbox.addEventListener('blur', function(ev) {
-            addonBar.hidden = false;
-        }, false);
-    }
-}
-*/
-/*
-(function () {
-    let addonBar = document.getElementById('addon-bar');
-    let bottomBox = document.getElementById('browser-bottombox');
-    bottomBox.appendChild(addonBar);
-})();
-*/
 

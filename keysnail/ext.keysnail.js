@@ -344,7 +344,7 @@ ext.add('copy-page-info', function(ev, arg) {
                 template(content.document.title, content.location.href, yank);
         }
     });
-}, 'タイトルやURLをコピー');
+}, 'Copy page info');
 
 ext.add('copy-gist-plugin-info', function(ev, arg) {
     const text = content.document.querySelectorAll('pre')[1].textContent;
@@ -445,3 +445,10 @@ ext.add('clear-cache', function(ev, arg) {
   cacheService.evictEntries(Ci.nsICache.STREAM_BASED);
 }, 'Clear cache');
 
+ext.add('balus', function(ev, arg) {
+    plugins.twitterAPI.request('statuses/update', {
+        params: { status: L('バルス!!') },
+        ok: function() display.echoStatusBar(L('目がぁぁぁ、目がぁぁぁぁ!')),
+        ng: function() display.echoStatusBar(L('3分間待ってやる'))
+    });
+}, 'Balus!');

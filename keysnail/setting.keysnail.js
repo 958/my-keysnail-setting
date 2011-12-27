@@ -1,5 +1,6 @@
 // site local key map
 function fake(k, i) function(){key.feed(k,i)}; function pass(k,i) [k,fake(k,i)]; function ignore(k,i) [k,null];
+function follow(id) function(){plugins.hok.followLink(content.document.getElementById(id), plugins.hok.CURRENT_TAB)};
 
 plugins.options["site_local_keymap.local_keymap"] = {
     "^https?://mail.google.com/mail/": [
@@ -63,34 +64,12 @@ plugins.options["site_local_keymap.local_keymap"] = {
         ["k", function() ext.exec("slideshare-previous")],
         ["F", function() ext.exec("slideshare-toggle-fullscreen")],
     ],
+    "^https?://docs.google.com/viewer": [
+        ['J', follow('nextToolbarButton')], ['K', follow('prevToolbarButton')],
+        [['g', 'g'], fake('<home>')], ['G', fake('<end>')],
+        ['/', follow('searchBox')], ["n", follow('nextSearchToolbarButton')], ["N", follow('prevSearchToolbarButton')],
+    ],
 };
-
-/*
-// preferldrize
-plugins.options["prefer_ldrize.keymap"] = {
-    "j" : null, "k" : null, "p" : null, "v" : null, "o" : null,
-    "i" : function() {
-        let titles = '';
-        plugins.ldrc.getPinnedItemsOrCurrentItem(true).forEach(function(item){
-            RIL.saveLink(item[0].href, item[1], RIL.xul('clickToSaveTags').value);
-            titles += ' ' + item[1] + "\n";
-        });
-        if (titles.length > 0)
-        display.prettyPrint('Add RIL \n' + titles, { timeout: 1000 });
-    },
-    //"l" : function() ext.exec("ldrc-pin-list"),
-    "l" : function() {
-        let infos = plugins.ldrc.LDRize.siteinfo_available;
-        let collection = infos.map(function(s) s.name);
-        prompt.selector({
-            message    : "select site info :",
-            collection : collection,
-            initialIndex : infos.indexOf(plugins.ldrc.LDRize.getSiteinfo()),
-            callback   : function (i) { if (i >= 0) plugins.ldrc.LDRize.setSiteinfoByName(collection[i]); }
-        });
-    },
-};
-*/
 
 plugins.options["ldrnail.keybind"] = {
     "j" : 'next', "k" : 'prev', "p" : 'pin', "v" : 'view', "o" : 'open', 'l': 'list',
@@ -115,9 +94,15 @@ plugins.options["ldrnail.keybind"] = {
             display.prettyPrint('Add RIL \n' + titles.join('\n'), { timeout: 1000 });
     },
 };
-plugins.options["ldrnail.pre_open_filter"] = function(aURL)
-    (!/^https?:\/\/docs\.google\.com/.test(aURL) && /^[^?#]+\.pdf[$#?]/i.test(aURL)) ?
-        'https://docs.google.com/viewer?url='+encodeURIComponent(aURL)+'&embedded=true&chrome=true' : aURL;
+plugins.options["ldrnail.pre_open_filter"] = function(url) {
+    const extRe = new RegExp('^[^\\?#]+\\.(' +
+        ['doc','docx','xls','xlsx','ppt','pptx','pdf'].join('|') +
+        ')($|[#?])', 'i');
+    return (!/^https?:\/\/docs\.google\.com/.test(url) && extRe.test(url)) ?
+        'http://docs.google.com/viewer?url='+encodeURIComponent(url)+'&chrome=true' :
+        url;
+}
+plugins.options["ldrnail.default_height"] = 100;
 
 // tanything
 plugins.options["tanything_opt.keymap"] = util.extendDefaultKeymap({
@@ -257,6 +242,19 @@ plugins.options['hok.actions'] = [
      function(e) e.focus(),
      false, false, 'embed, div[bgactive*="chrome://flashblock/content/"]'],
 ];
+plugins.options['hok.hint_base_style'] = {
+    "border-radius"  : '3px',
+    "position"       : 'absolute',
+    "z-index"        : '2147483647',
+    "color"          : '#000',
+    "font-family"    : 'monospace',
+    "font-size"      : '10pt',
+    "font-weight"    : 'bold',
+    "line-height"    : '10pt',
+    "padding"        : '2px',
+    "margin"         : '0px',
+    "text-transform" : 'uppercase'
+};
 
 // history
 plugins.options['history.max-results'] = 10000;

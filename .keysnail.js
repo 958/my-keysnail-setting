@@ -57,13 +57,9 @@ key.setGlobalKey('C-k', function (ev, arg) {
     ext.exec("search-with-suggest", arg, ev);
 }, 'Search With Suggest', true);
 
-key.setGlobalKey('C-K', function (ev, arg) {
-    ext.exec('quick-google', arg, ev);
-}, 'Quick bing', true);
-
 key.setGlobalKey('C-:', function (ev, arg) {
-    ext.exec("prefer-ldrize-toggle-status", arg, ev);
-}, 'LDRize 優先状態の切り替え', true);
+    ext.exec("ldrnail-toggle-status", arg, ev);
+}, 'LDRnail - 優先状態の切り替え', true);
 
 key.setGlobalKey('M-x', function (ev, arg) {
     ext.select(arg, ev);
@@ -83,7 +79,6 @@ key.setGlobalKey('C-p', function (ev) {
 
 key.setGlobalKey(['C-m', 't'], function (ev, arg) {
     style.toggle(<><![CDATA[
-//        #TabsToolbar { visibility:collapse; }
         #tabbrowser-tabs { visibility:collapse; }
     ]]></>);
 }, 'タブ表示をトグル');
@@ -283,6 +278,25 @@ key.setGlobalKey(['C-,', 'r', 'j'], function (ev, arg) {
     ext.exec("JsReferrence-open-prompt", arg, ev);
 }, 'JsReference で検索を開始する', true);
 
+key.setGlobalKey('C-s', function (ev, arg) {
+    ext.exec('quick-google', arg, ev);
+}, 'Quick bing', true);
+
+key.setGlobalKey(['C-;', 'b'], function (ev, arg) {
+    let elem = document.commandDispatcher.focusedElement;
+    if (elem) elem.blur();
+    gBrowser.focus();
+    _content.focus();
+}, 'コンテンツへフォーカス');
+
+key.setGlobalKey(['C-;', 'p'], function (ev, arg) {
+    var p = document.getElementById("keysnail-prompt");
+    if (p.hidden)
+        return;
+
+    document.getElementById("keysnail-prompt-textbox").focus();
+}, 'プロンプトへフォーカス');
+
 key.setViewKey('u', function (ev) {
     undoCloseTab();
 }, '閉じたタブを元に戻す');
@@ -446,6 +460,10 @@ key.setViewKey('c', function (ev, arg) {
     ext.exec("list-hateb-comments", arg, ev);
 }, 'このページのはてなブックマークコメントを一覧表示', true);
 
+key.setViewKey('C', function (ev, arg) {
+    openUILinkIn('http://b.hatena.ne.jp/entry?mode=more&url=' + encodeURIComponent(content.location.href), 'tab');
+}, 'このページのはてなブックマークコメントを表示', true);
+
 key.setViewKey('G', function (ev) {
     goDoCommand("cmd_scrollBottom");
 }, 'ページ末尾へ移動');
@@ -543,7 +561,7 @@ key.setViewKey('Y', function (ev, arg) {
     ext.exec("copy-page-info", arg, ev);
 }, 'タイトルやURLをコピー');
 
-key.setViewKey('C-y', function (ev, arg) {
+key.setViewKey('C-Y', function (ev, arg) {
     ext.exec("copy-gist-plugin-info", arg, ev);
 }, 'Copy gist plugin info');
 

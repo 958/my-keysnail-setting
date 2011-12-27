@@ -33,9 +33,22 @@ style.register(<><![CDATA[
     #urlbar>toolbarbutton, #urlbar dropmarker {
         display: none !important;
     }
+    .urlbar-icon {
+        padding:0 !important;
+    }
     /* アドオンバーの閉じるボタンを非表示に */
     #addonbar-closebutton {
         display: none !important;
     }
 ]]></>);
 
+style.register(<><![CDATA[
+    /* AutoPagerize */
+    hr.autopagerize_page_separator {
+        display:none;
+    }
+    p.autopagerize_page_info {
+        text-align: right;
+        font-size: 10pt;
+    }
+]]></>, style.XHTML);

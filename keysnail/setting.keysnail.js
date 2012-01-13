@@ -238,9 +238,9 @@ plugins.options['hok.actions'] = [
      },
      false, false, 'img'],
     ['F',
-     'Flash',
-     function(e) e.focus(),
-     false, false, 'embed, div[bgactive*="chrome://flashblock/content/"]'],
+     'Facebook like',
+     function(e) plugins.hok.followLink(e, 4),
+     false, false, 'a.connect_widget_like_button.like_button_no_like, a.connect_widget_like_button.like_button_like>div.tombstone_cross'],
 ];
 plugins.options['hok.hint_base_style'] = {
     "border-radius"  : '3px',

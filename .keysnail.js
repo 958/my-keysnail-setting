@@ -1,5 +1,4 @@
 // ========================== KeySnail Init File =========================== //
-
 // この領域は, GUI により設定ファイルを生成した際にも引き継がれます
 // 特殊キー, キーバインド定義, フック, ブラックリスト以外のコードは, この中に書くようにして下さい
 // ========================================================================= //
@@ -269,6 +268,18 @@ key.setGlobalKey(['C-,', 'g', 'M'], function (ev, arg) {
 key.setGlobalKey(['C-,', 'g', 'C-m'], function (ev, arg) {
     ext.exec("gpum-login", arg, ev);
 }, 'gpum - ログイン', true);
+
+key.setGlobalKey(['C-,', 'g', 'c'], function (ev, arg) {
+    ext.exec("google-calendar-show-all-events", arg, ev);
+}, 'Google Calendar - 全てのイベント一覧', true);
+
+key.setGlobalKey(['C-,', 'g', 'C'], function (ev, arg) {
+    ext.exec("google-calendar-create-event", arg, ev);
+}, 'Google Calendar - イベントを作成', true);
+
+key.setGlobalKey(['C-,', 'g', 'C-c'], function (ev, arg) {
+    ext.exec("google-calendar-update-calendars", arg, ev);
+}, 'Google Calendar - カレンダーキャッシュを更新', true);
 
 key.setGlobalKey(['C-,', 'r', '.'], function(ev, arg) {
     plugins.heavens.dotnet.open();

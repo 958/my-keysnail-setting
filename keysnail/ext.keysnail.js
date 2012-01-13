@@ -91,7 +91,7 @@ ext.add("reload-plugin", function () {
     prompt.selector({
         message     : "reload plugin:",
         collection  : plugins.map(function (f) f.leafName),
-        callback    : function (i) { if (i >= 0) userscript.loadPlugin(plugins[i]); }
+        callback    : function (i) { if (i >= 0) userscript.loadPlugin(plugins[i], true); }
     });
 }, "Load specified plugin");
 
@@ -107,7 +107,7 @@ ext.add("toggle-scroll-bar", function(){
         @namespace html url("http://www.w3.org/1999/xhtml");
         html|html > scrollbar { visibility: collapse !important; }
     ]]></>, [style.XHTML, style.XUL].join(""), true);
-}, "スクロールバーの表示を切り替える");
+}, L("スクロールバーの表示を切り替える"));
 
 ext.add("google-search", function(ev, arg) {
     let engines = util.suggest.getEngines();
@@ -234,7 +234,7 @@ ext.add('input-html-tag', function inputTag(ev, arg) {
             input.scrollTop = scrollTop;
         }
     });
-}, "HTML のタグを挿入");
+}, L("HTML のタグを挿入"));
 
 ext.add('show-memory-report', function(ev, arg) {
     function addFigure(str) {
@@ -303,7 +303,7 @@ ext.add('go-nickname', function(ev, arg) {
         },
         callback: function (value) plugins.bmany.go(getShortcutOrURI(value, {}).spec, openMode)
     });
-}, 'ブックマークのキーワードから即座に開く');
+}, L('ブックマークのキーワードから即座に開く'));
 
 // via http://www.pshared.net/diary/20091004.html
 ext.add('copy-page-info', function(ev, arg) {

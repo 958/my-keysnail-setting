@@ -253,6 +253,10 @@ key.setGlobalKey(['C-,', 'C-d'], function (ev, arg) {
     ext.exec("dlbsnail-show-command-for-all", arg, ev);
 }, 'dlbasnail-all系コマンド', true);
 
+key.setGlobalKey(['C-,', 'g', 'T'], function (ev, arg) {
+    ext.exec("google-tasks-create", arg, ev);
+}, 'Google Tasks - Create task', true);
+
 key.setGlobalKey(['C-,', 'g', 't'], function (ev, arg) {
     ext.exec("google-tasks-show-tasks", arg, ev);
 }, 'Google Tasks - Show tasks', true);
@@ -376,7 +380,9 @@ key.setViewKey(['g', 'f'], function(ev, arg) {
 }, '次のフレームを選択');
 
 key.setViewKey(['b', 'a'], function (ev, arg) {
-    PlacesCommandHook.bookmarkCurrentPage(true, PlacesUtils.bookmarksMenuFolderId);
+    let (tab = gBrowser.mTabContainer.childNodes[gBrowser.mTabContainer.selectedIndex]) {
+        PlacesUIUtils.showAddBookmarkUI(tab.linkedBrowser.currentURI, tab.linkedBrowser.contentDocument.title);
+    }
 }, 'お気に入りに追加', true);
 
 key.setViewKey(['b', 'b'], function (ev, arg) {
@@ -403,11 +409,11 @@ key.setViewKey(['b', 'l'], function (ev, arg) {
     ext.exec('live-bookmark-select-folder', arg, ev);
 }, 'ライブブックマークを一覧表示', true);
 
-key.setViewKey(['w', 'r'], function (ev, arg) {
+key.setViewKey(['w', 'd', 'n'], function (ev, arg) {
     ext.exec('close-all-tabs-on-right', arg, ev);
 }, '右側のタブを全て閉じる', true);
 
-key.setViewKey(['w', 'l'], function (ev, arg) {
+key.setViewKey(['w', 'd', 'p'], function (ev, arg) {
     ext.exec('close-all-tabs-on-left', arg, ev);
 }, '左側のタブを全て閉じる', true);
 
@@ -418,6 +424,26 @@ key.setViewKey([['w', 'w'], ['d']], function (ev) {
 key.setViewKey(['w', 'q'], function (ev, arg) {
     ext.exec("ril-append-and-close", arg, ev);
 }, 'RIL - 現在のタブを RIL に追加してタブを閉じる', true);
+
+key.setViewKey(['w', 'g', 'l'], function (ev, arg) {
+    ext.exec('tabgroup-list', arg, ev);
+}, 'Show tabgroup list');
+
+key.setViewKey(['w', 'g', 'j'], function (ev, arg) {
+    ext.exec('tabgroup-next', arg, ev);
+}, 'Next tabgroup');
+
+key.setViewKey(['w', 'g', 'k'], function (ev, arg) {
+    ext.exec('tabgroup-prev', arg, ev);
+}, 'Previous tabgroup');
+
+key.setViewKey(['w', 'g', 'c'], function (ev, arg) {
+    ext.exec('tabgroup-create', arg, ev);
+}, 'Create new tabgroup');
+
+key.setViewKey(['w', 'g', 'd'], function (ev, arg) {
+    ext.exec('tabgroup-close', arg, ev);
+}, 'Close current tabgroup');
 
 key.setViewKey(['h', 'h'], function (ev, arg) {
     ext.exec("history-show", arg, ev);

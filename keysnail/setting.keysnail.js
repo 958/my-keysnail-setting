@@ -29,6 +29,7 @@ plugins.options["site_local_keymap.local_keymap"] = {
         pass(["g", "f"]), pass(["g", "F"]), pass(["g", "c"]), pass(["g", "C"]),
         pass(["g", "e"]), pass(["g", "p"]),
         // navigation
+        ["j", null], ["k", null], ["n", null],
         ["i", null], ["j", null], ["k", null], ["n", null],
         ["p", null], ["N", null], ["P", null], ["X", null],
         ["o", null],
@@ -103,6 +104,23 @@ plugins.options["ldrnail.pre_open_filter"] = function(url) {
         url;
 }
 plugins.options["ldrnail.default_height"] = 100;
+plugins.options["ldrnail.siteinfo"] = [
+    {
+        name: 'Yahoo blog search',
+        domain: '^http://blog\\.search\\.yahoo\\.co\\.jp/search\\?.+',
+        paragraph: '//div[contains(concat(" ",normalize-space(@class)," ")," cl ")]',
+        link: './/h2/a',
+        view: './/h2',
+        focus: '//input[@id="yschsp"]',
+    },
+    {
+        name: 'Google web history',
+        domain: '^https://www\\.google\\.com/history/',
+        paragraph: '//table[contains(concat(" ",normalize-space(@class)," ")," result ")]',
+        link: './/a',
+        focus: '//input[@id="kd-searchfield"]',
+    },
+];
 
 // tanything
 plugins.options["tanything_opt.keymap"] = util.extendDefaultKeymap({
@@ -210,7 +228,7 @@ plugins.options["ProgrammableGesture.actions"]=function(p){with(p){try{return{
     Right:chain('forward',{
       Left:chain('undo-closed-tab'),
       Down:chain({
-        Right:chain(action("ソースを表示",function() openUILinkIn('view-source:' + content.location.href, 'tab'))),
+        Right:chain(action(L("ソースを表示"),function() openUILinkIn('view-source:' + content.location.href, 'tab'))),
       }),
     }),
     WheelUp:soon('select-previous-tab'),
@@ -267,6 +285,6 @@ plugins.options['dabbrev.prev_key'] = 'C-p';
 plugins.options["follow-link.nextrel"] = 'a[rel="next"]';
 plugins.options["follow-link.prevrel"] = 'a[rel="prev"]';
 plugins.options["follow-link.targets"] = 'a[href], input:not([type="hidden"]), button';
-plugins.options["follow-link.nextpattern"] = "^次へ|進む|^次.*|続|→|\\bnext|>>|≫|\\bnewer";
-plugins.options["follow-link.prevpattern"] = "\\bback|戻る|^前.*|^<前|←|\\bprev|<<|≪|\\bolder";
+plugins.options["follow-link.nextpattern"] = L("^次へ|進む|^次.*|続|→|\\bnext|>>|≫|\\bnewer");
+plugins.options["follow-link.prevpattern"] = L("\\bback|戻る|^前.*|^<前|←|\\bprev|<<|≪|\\bolder");
 

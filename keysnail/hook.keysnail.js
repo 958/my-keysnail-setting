@@ -1,19 +1,4 @@
 
-// 短縮 URL を goo.gl へ
-hook.addToHook('PluginLoaded', function() {
-    if (!plugins.twitterClient) return;
-
-    plugins.twitterClient.tweetWithTitleAndURL = function(ev, arg)
-        plugins.lib.shortenURL(content.location.href, function(url)
-            plugins.twitterClient.tweet((arg ? "" : '"' + content.document.title + '" - ') + url)
-        );
-
-    // function を直接渡している為 エクステを再登録する必要がある
-    ext.add("twitter-client-tweet-this-page", plugins.twitterClient.tweetWithTitleAndURL,
-            M({ja: 'このページのタイトルと URL を使ってつぶやく',
-               en: "Tweet with the title and URL of this page"}));
-});
-
 hook.setHook('MenuPopupShowing', function stopKeySnail(ev) {
     key.suspended = true;
 });

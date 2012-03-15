@@ -713,6 +713,14 @@ key.setViewKey([',', 'f', 'm'], function (ev, arg) {
     ext.exec("facebook-show-inbox", arg, ev);
 }, 'facebook - メッセージを表示', true);
 
+key.setViewKey([',', 'g', 'i'], function (ev, arg) {
+    ext.exec("gs-in", arg, ev);
+}, 'Group session In', true);
+
+key.setViewKey([',', 'g', 'o'], function (ev, arg) {
+    ext.exec("gs-out", arg, ev);
+}, 'Group session Out', true);
+
 key.setViewKey([',', ',', 'g'], function (ev, arg) {
     ext.exec("login-manager-login", "google ", ev);
 }, 'Log In (google.com)', true);

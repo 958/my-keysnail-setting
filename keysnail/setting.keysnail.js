@@ -30,7 +30,7 @@ plugins.options["site_local_keymap.local_keymap"] = {
         pass(["g", "e"]), pass(["g", "p"]),
         // navigation
         ["j", null], ["k", null], ["n", null],
-        ["i", null], ["j", null], ["k", null], ["n", null],
+        ["j", null], ["k", null], ["n", null],
         ["p", null], ["N", null], ["P", null], ["X", null],
         ["o", null],
         // item
@@ -44,6 +44,15 @@ plugins.options["site_local_keymap.local_keymap"] = {
         [".", function() window.content.document.querySelector('#viewer-entries-container').scrollTop += 100],
         [">", function() window.content.document.querySelector('#viewer-entries-container').scrollTop -= 100],
         ["z", null],
+        ["i", function() {
+            try {
+                var doc = window.content.document;
+                var cur = doc.querySelector('#current-entry');
+                var link = cur.querySelector('.entry-title-link');
+                RIL.saveLink(link.href, link.textContent, '');
+                display.prettyPrint('Add RIL \n' + link.textContent, { timeout: 1000 });
+            } catch(e) { }
+        }],
     ],
     "^http://www.tumblr.com/dashboard": [
         ["t", function() {
@@ -103,7 +112,7 @@ plugins.options["ldrnail.pre_open_filter"] = function(url) {
         'http://docs.google.com/viewer?url='+encodeURIComponent(url)+'&chrome=true' :
         url;
 }
-plugins.options["ldrnail.default_height"] = 100;
+plugins.options["ldrnail.default_height"] = 10;
 plugins.options["ldrnail.siteinfo"] = [
     {
         name: 'Yahoo blog search',
@@ -119,6 +128,13 @@ plugins.options["ldrnail.siteinfo"] = [
         paragraph: '//table[contains(concat(" ",normalize-space(@class)," ")," result ")]',
         link: './/a',
         focus: '//input[@id="kd-searchfield"]',
+    },
+    {
+        name: 'New Hatena bookmark',
+        domain: '^http://b\\.hatena\\.ne\\.jp/',
+        paragraph: '//*[contains(concat(" ",normalize-space(@class)," ")," entry-block ") or contains(concat(" ",normalize-space(@class)," ")," entry-body ") or contains(concat(" ",normalize-space(@class)," ")," page-loading-message ")]',
+        link: './/h3/a',
+        view: './/h3',
     },
 ];
 
@@ -158,17 +174,14 @@ plugins.options["twitter_client.keymap"] = util.extendDefaultKeymap({
     "o"     : "open-url",
     "+"     : "show-conversations",
     "h"     : "refresh-or-back-to-timeline",
-    "s"     : "switch-to"
+    "s"     : "switch-to",
 });
-plugins.options["twitter_client.filters"] = [
-    function(s)
-        !(s.user.screen_name=="10th543" && s.retweeted_status),
-];
 
 // bmany
 plugins.options["bmany.default_open_type"] = "tab";
 plugins.options["bmany.keymap"] = {
-    "C-e" : "edit-bookmark"
+    "E" : "edit-bookmark",
+    "D" : "remove-bookmark",
 };
 
 // hatebnail

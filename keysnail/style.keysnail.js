@@ -22,19 +22,16 @@ style.register(<><![CDATA[
     #keysnail-prompt-textbox *|input {
         ime-mode : inactive !important;
     }
-    #addon-bar {
-        -moz-appearance: none !important;
-    }
     /* urlbar の高さを調整 */
     #urlbar {
-        margin: 0 !important;
-        border: none !important;
+        /*margin: 0 !important;*/
+        /*border: none !important;*/
     }
     #urlbar>toolbarbutton, #urlbar dropmarker {
         display: none !important;
     }
     .urlbar-icon {
-        padding:0 !important;
+        /*padding:0 !important;*/
     }
     /* アドオンバーの閉じるボタンを非表示に */
     #addonbar-closebutton {

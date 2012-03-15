@@ -1,4 +1,12 @@
 
+ext.add('WWWC', function() {
+    var command = 'e:\\tools\\wwwc\\wwwc.exe';
+    var commandFile = util.openFile(command);
+    var process = Cc["@mozilla.org/process/util;1"].createInstance(Ci.nsIProcess);
+    process.init(commandFile);
+    process.run(false, ["/c", "/e", "/a"], 3);
+}, "WWWC Check updated");
+
 //最近閉じたタブ
 // http://d.hatena.ne.jp/mooz/20091123/p1
 ext.add("list-closed-tabs", function () {
@@ -383,11 +391,13 @@ ext.add('xulmigemo-find-init', function(ev, arg) {
 }, 'XULMigemo find');
 
 ext.add('xulmigemo-find-next', function(ev, arg) {
-    window.XMigemoFind.findNext(true);
+    window.XMigemoFind.target = document.getElementById('content');
+    window.XMigemoFind.findNext(false);
 }, 'XULMigemo find next');
 
 ext.add('xulmigemo-find-prev', function(ev, arg) {
-    window.XMigemoFind.findPrevious(true);
+    window.XMigemoFind.target = document.getElementById('content');
+    window.XMigemoFind.findPrevious(false);
 }, 'XULMigemo find previous');
 
 ext.add('toggle-statusbar-icon', function(ev, arg) {
@@ -452,3 +462,28 @@ ext.add('balus', function(ev, arg) {
         ng: function() display.echoStatusBar(L('3分間待ってやる'))
     });
 }, 'Balus!');
+
+ext.add('select-user-agent', function(ev, arg) {
+    var selectedItem = null;
+    var collection = Array.map(
+        document.getElementById('useragentswitcher-menu').getElementsByAttribute('type', 'radio'),
+        function (ua) {
+            var ret = [ua.label, ua];
+            if (ua.getAttribute('checked'))
+                selectedItem = ret;
+            return ret;
+        }
+    );
+    prompt.selector({
+        message     : "select user agent:",
+        initialIndex: collection.indexOf(selectedItem),
+        collection  : collection,
+        flags       : [0, HIDDEN | IGNORE],
+        callback    : function (i) {
+            if (i > 0)
+                UserAgentSwitcher.switchUserAgent(collection[i][1]);
+            else if (i == 0)
+                UserAgentSwitcher.reset();
+        }
+    });
+}, 'Select User Agent');

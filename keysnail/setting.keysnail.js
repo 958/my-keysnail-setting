@@ -32,25 +32,34 @@ plugins.options["site_local_keymap.local_keymap"] = {
         ["j", null], ["k", null], ["n", null],
         ["j", null], ["k", null], ["n", null],
         ["p", null], ["N", null], ["P", null], ["X", null],
-        ["o", null],
+        ["o", function() {
+            try {
+                var doc = content.document;
+                var cur = doc.querySelector('#current-entry');
+                var link = cur.querySelector('.entry-title-link');
+                openUILinkIn(link.href, 'tabshifted', false, null, 
+                        Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService).
+                            newURI(content.location.href, null, null));
+            } catch(e) { }
+        }],
         // item
         ["s", null], ["L", null], ["t", null], ["S", null],
-        ["D", null], ["v", null], ["o", null], ["c", null],
+        ["D", null], ["v", null], ["c", null],
         ["C", null], ["m", null], ["T", null],
         // application
         ["r", null], ["u", null], ["1", null], ["2", null],
         ["/", null], ["=", null], ["-", null],
         // other
-        [".", function() window.content.document.querySelector('#viewer-entries-container').scrollTop += 100],
-        [">", function() window.content.document.querySelector('#viewer-entries-container').scrollTop -= 100],
+        [".", function() content.document.querySelector('#viewer-entries-container').scrollTop += 100],
+        [">", function() content.document.querySelector('#viewer-entries-container').scrollTop -= 100],
         ["z", null],
         ["i", function() {
             try {
-                var doc = window.content.document;
+                var doc = content.document;
                 var cur = doc.querySelector('#current-entry');
                 var link = cur.querySelector('.entry-title-link');
                 RIL.saveLink(link.href, link.textContent, '');
-                display.prettyPrint('Add RIL \n' + link.textContent, { timeout: 1000 });
+                display.echoStatusBar('Add RIL :' + link.textContent);
             } catch(e) { }
         }],
     ],
@@ -79,6 +88,9 @@ plugins.options["site_local_keymap.local_keymap"] = {
         [['g', 'g'], fake('<home>')], ['G', fake('<end>')],
         ['/', follow('searchBox')], ["n", follow('nextSearchToolbarButton')], ["N", follow('prevSearchToolbarButton')],
     ],
+    "^http://ssr.minidns.net/": [
+        ["j", null], ["k", null], ["p", null], ["t", null], ["z", null],
+    ],
 };
 
 plugins.options["ldrnail.keybind"] = {
@@ -101,7 +113,7 @@ plugins.options["ldrnail.keybind"] = {
         });
         plugins.ldrnail.clearPin();
         if (titles.length > 0)
-            display.prettyPrint('Add RIL \n' + titles.join('\n'), { timeout: 1000 });
+            display.echoStatusBar('Add RIL :' + titles.join(', '));
     },
 };
 plugins.options["ldrnail.pre_open_filter"] = function(url) {
@@ -293,7 +305,10 @@ plugins.options['history.max-results'] = 10000;
 // Expander
 plugins.options['dabbrev.next_key'] = 'C-n';
 plugins.options['dabbrev.prev_key'] = 'C-p';
-
+plugins.options["dabbrev.candidates"] = [
+    "KeySnail",
+    "Plugin",
+];
 // 次へ、前へ
 plugins.options["follow-link.nextrel"] = 'a[rel="next"]';
 plugins.options["follow-link.prevrel"] = 'a[rel="prev"]';

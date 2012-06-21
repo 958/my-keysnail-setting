@@ -455,13 +455,37 @@ ext.add('clear-cache', function(ev, arg) {
   cacheService.evictEntries(Ci.nsICache.STREAM_BASED);
 }, 'Clear cache');
 
-ext.add('balus', function(ev, arg) {
-    plugins.twitterAPI.request('statuses/update', {
-        params: { status: L('バルス!!') },
-        ok: function() display.echoStatusBar(L('目がぁぁぁ、目がぁぁぁぁ!')),
-        ng: function() display.echoStatusBar(L('3分間待ってやる'))
-    });
-}, 'Balus!');
+//http://keysnail.g.hatena.ne.jp/mooz/20100305/1267756292
+function transposeSubString(input, beg, end, to) {
+    let txt = input.value;
+
+    let head = txt.slice(0, beg);
+    let left = txt.slice(beg, end);
+    let right = txt.slice(end, to);
+    let tail = txt.slice(to);
+
+    let {scrollTop, scrollLeft} = input;
+
+    input.value = head + right + left + tail;
+    input.selectionStart = input.selectionEnd = txt.length - tail.length;
+
+    if (scrollTop === scrollLeft === 0)
+        command.inputScrollSelectionIntoView(input);
+    else
+        input.scrollTop = scrollTop, input.scrollLeft = scrollLeft;
+}
+
+function transposeChars(ev, arg) {
+    let input = ev.originalTarget;
+    let begin = input.selectionEnd - (
+            (input.selectionEnd == input.value.length) ? 2 : 
+                ((input.selectionEnd == 0) ? 0 : 1));
+    let end = begin + 1;
+    let to = end + (typeof arg === 'number' ? Math.max(arg, 1) : 1);
+    transposeSubString(input, begin, end, to);
+}
+
+ext.add("transpose-chars", transposeChars, "Interchange characters around point");
 
 ext.add('select-user-agent', function(ev, arg) {
     var selectedItem = null;

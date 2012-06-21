@@ -312,6 +312,18 @@ key.setGlobalKey(['C-;', 'p'], function (ev, arg) {
     document.getElementById("keysnail-prompt-textbox").focus();
 }, 'プロンプトへフォーカス');
 
+key.setGlobalKey(['C-,', 'h', 'a'], function (ev, arg) {
+    ext.exec('hab-add', arg, ev);
+}, '支出を追加');
+
+key.setGlobalKey(['C-,', 'h', 'l'], function (ev, arg) {
+    ext.exec('hab-show', arg, ev);
+}, '支出をリスト表示');
+
+key.setGlobalKey(['C-,', 'h', 'c'], function (ev, arg) {
+    ext.exec('hab-show-chart', arg, ev);
+}, '支出をグラフ表示');
+
 key.setViewKey('u', function (ev) {
     undoCloseTab();
 }, '閉じたタブを元に戻す');
@@ -768,8 +780,12 @@ key.setEditKey('C-[', function (ev, arg) {
 }, 'HTMLタグを挿入');
 
 key.setEditKey(plugins.options['dabbrev.next_key'], function (ev, arg) {
-    ext.exec('dabbrev-expand', arg, ev);
+    ext.exec('dabbrev-expand-with-suggestions', arg, ev);
 }, '略語展開');
+
+key.setEditKey('C-t', function (ev, arg) {
+    ext.exec('transpose-chars', arg, ev);
+}, 'Interchange characters around point', true);
 
 key.setCaretKey('v', function (ev) {
     command.setMark(ev);

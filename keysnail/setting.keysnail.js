@@ -144,7 +144,7 @@ plugins.options["ldrnail.siteinfo"] = [
     {
         name: 'New Hatena bookmark',
         domain: '^http://b\\.hatena\\.ne\\.jp/',
-        paragraph: '//*[contains(concat(" ",normalize-space(@class)," ")," entry-block ") or contains(concat(" ",normalize-space(@class)," ")," entry-body ") or contains(concat(" ",normalize-space(@class)," ")," page-loading-message ")]',
+        paragraph: '//*[contains(concat(" ",normalize-space(@class)," ")," entry-block ") or contains(concat(" ",normalize-space(@class)," ")," entry-body ") or @id="page-loading-message"]',
         link: './/h3/a',
         view: './/h3',
     },
@@ -285,19 +285,6 @@ plugins.options['hok.actions'] = [
      function(e) plugins.hok.followLink(e, 4),
      false, false, 'a.connect_widget_like_button.like_button_no_like, a.connect_widget_like_button.like_button_like>div.tombstone_cross'],
 ];
-plugins.options['hok.hint_base_style'] = {
-    "border-radius"  : '3px',
-    "position"       : 'absolute',
-    "z-index"        : '2147483647',
-    "color"          : '#000',
-    "font-family"    : 'monospace',
-    "font-size"      : '10pt',
-    "font-weight"    : 'bold',
-    "line-height"    : '10pt',
-    "padding"        : '2px',
-    "margin"         : '0px',
-    "text-transform" : 'uppercase'
-};
 
 // history
 plugins.options['history.max-results'] = 10000;

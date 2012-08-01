@@ -154,7 +154,7 @@ ext.add("search-with-suggest", function(ev, arg) {
         header: ["Name", "Description"],
         callback: function (i) {
             if (i >= 0) {
-                let text = content.document.getSelection().toString();
+                let text = (document.commandDispatcher.focusedWindow || gBrowser.contentWindow).getSelection().toString();
                 if (text.length > 0)
                     openUILinkIn(engines[i].getSubmission(text, null).uri.spec, "tab");
                 else

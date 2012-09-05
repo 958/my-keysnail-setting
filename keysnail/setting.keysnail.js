@@ -78,7 +78,7 @@ plugins.options["site_local_keymap.local_keymap"] = {
             content.location.href = 'http://www.tumblr.com/dashboard/1/' + postId;
         }],
     ],
-    "^http://www.slideshare.net/": [
+    "^https?://www.slideshare.net/": [
         ["j", function() ext.exec("slideshare-next")],
         ["k", function() ext.exec("slideshare-previous")],
         ["F", function() ext.exec("slideshare-toggle-fullscreen")],
@@ -284,6 +284,10 @@ plugins.options['hok.actions'] = [
      'Facebook like',
      function(e) plugins.hok.followLink(e, 4),
      false, false, 'a.connect_widget_like_button.like_button_no_like, a.connect_widget_like_button.like_button_like>div.tombstone_cross'],
+    [ 'O',
+      M({ja: 'リンクを Google Chrome で開く', en: 'Open with Google Chrome'}),
+      function(e) plugins.launcher.launch('google-chrome', e.href),
+      false, false, "a[href]"],
 ];
 
 // history
@@ -303,3 +307,16 @@ plugins.options["follow-link.targets"] = 'a[href], input:not([type="hidden"]), b
 plugins.options["follow-link.nextpattern"] = L("^次へ|進む|^次.*|続|→|\\bnext|>>|≫|\\bnewer");
 plugins.options["follow-link.prevpattern"] = L("\\bback|戻る|^前.*|^<前|←|\\bprev|<<|≪|\\bolder");
 
+// launcher
+plugins.options['launcher.apps'] = {
+    'wwwc-check-update': {
+        description: 'WWWC check update',
+        path: 'e:\\tools\\wwwc\\wwwc.exe',
+        defaultArgs: ["/c", "/e", "/a"],
+    },
+    'google-chrome': {
+        description: 'Open with Google Chrome',
+        path: 'e:\\tools\\Google Chrome.lnk',
+        defaultArgs: ['%URL'],
+    },
+};

@@ -13,16 +13,14 @@ prompt.migemoMinWordLength = 3;
 // ===== Load sub files =====
 (function() {
     try {
-        userscript.addLoadPath(util.getExtensionLocalDirectoryRoot().path);
         util.readDirectory(util.getExtensionLocalDirectoryRoot(), true)
-            .filter(function (file) !(file.leafName.match("^\\.\\.keysnail\\.js$") ||
-                                      !file.leafName.match("\\.keysnail\\.js$") ||
+            .filter(function (file) !(/^\.keysnail\.js$/i.test(file.leafName) ||
+                                      !/\.keysnail\.js$/i.test(file.leafName) ||
                                       file.isDirectory()))
-            .map(function (file) file.leafName)
             .sort()
             .forEach(function (file) {
-                util.message('Load sub setting files: ' + file);
-                userscript.require(file);
+                util.message('Load sub setting files: ' + file.leafName);
+                userscript.loadSubScript(file.path, modules, true);
             });
     } catch (ex) { }
 })();
@@ -266,8 +264,8 @@ key.setGlobalKey(['C-,', 'g', 'm'], function (ev, arg) {
 }, 'gpum - 新着メールを表示', true);
 
 key.setGlobalKey(['C-,', 'g', 'M'], function (ev, arg) {
-    ext.exec("gpum-compose-mail", arg, ev);
-}, 'gpum - 新規メールを作成', true);
+    ext.exec("gpum-check-new-mail", arg, ev);
+}, 'gpum - 新規メールを確認', true);
 
 key.setGlobalKey(['C-,', 'g', 'C-m'], function (ev, arg) {
     ext.exec("gpum-login", arg, ev);
@@ -439,7 +437,7 @@ key.setViewKey(['w', 'q'], function (ev, arg) {
 
 key.setViewKey(['w', 'g', 'l'], function (ev, arg) {
     ext.exec('tabgroup-list', arg, ev);
-}, 'Show tabgroup list');
+}, 'Show tabgroup list', true);
 
 key.setViewKey(['w', 'g', 'j'], function (ev, arg) {
     ext.exec('tabgroup-next', arg, ev);
@@ -451,11 +449,11 @@ key.setViewKey(['w', 'g', 'k'], function (ev, arg) {
 
 key.setViewKey(['w', 'g', 'c'], function (ev, arg) {
     ext.exec('tabgroup-create', arg, ev);
-}, 'Create new tabgroup');
+}, 'Create new tabgroup', true);
 
 key.setViewKey(['w', 'g', 'd'], function (ev, arg) {
     ext.exec('tabgroup-close', arg, ev);
-}, 'Close current tabgroup');
+}, 'Close current tabgroup', true);
 
 key.setViewKey(['h', 'h'], function (ev, arg) {
     ext.exec("history-show", arg, ev);
@@ -549,17 +547,21 @@ key.setViewKey([['\\', '\\'], ['\\', 't']], function (ev, arg) {
     ext.exec("find-current-tab", arg, ev);
 }, 'Find - 現在のタブを検索', true);
 
-key.setViewKey([['\\', '_'], ['\\', 'l']], function (ev, arg) {
+key.setViewKey(['\\', '_'], function (ev, arg) {
     ext.exec("find-current-tab-link-text-and-url", arg, ev);
 }, 'Find - 現在のタブのリンクを検索', true);
+
+key.setViewKey(['\\', 'l'], function (ev, arg) {
+    ext.exec("find-current-tab-link-url", arg, ev);
+}, 'Find - 現在のタブのリンク URL を検索', true);
 
 key.setViewKey(['\\', 'T'], function (ev, arg) {
     ext.exec("find-all-tab", arg, ev);
 }, 'Find - 全てのタブを検索', true);
 
 key.setViewKey(['\\', 'L'], function (ev, arg) {
-    ext.exec("find-current-tab-link-url", arg, ev);
-}, 'Find - 現在のタブのリンクを検索', true);
+    ext.exec("find-all-tab-link-text-and-url", arg, ev);
+}, 'Find - 全てのタブのリンクを検索', true);
 
 key.setViewKey('i', function (ev, arg) {
     util.setBoolPref("accessibility.browsewithcaret", !util.getBoolPref("accessibility.browsewithcaret"));
@@ -748,6 +750,18 @@ key.setViewKey([',', ',', 'l'], function (ev, arg) {
 key.setViewKey([',', ',', 'L'], function (ev, arg) {
     ext.exec("login-manager-logout", arg, ev);
 }, 'Log Out (LoginManager)', true);
+
+key.setViewKey([',', 'a', 'l'], function (ev, arg) {
+    ext.exec("foxage2ch-show-threads");
+}, 'FoxAge2ch - Show threads', true);
+
+key.setViewKey([',', 'a', 'r'], function (ev, arg) {
+    ext.exec("foxage2ch-check-updates");
+}, 'FoxAge2ch - Check updates', true);
+
+key.setViewKey([',', 'a', 'o'], function (ev, arg) {
+    ext.exec("foxage2ch-open-updates");
+}, 'FoxAge2ch - Show updates', true);
 
 key.setViewKey('.', function (ev, arg) {
     display.echoStatusBar(window.content.location.href);

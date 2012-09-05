@@ -37,6 +37,10 @@ style.register(<><![CDATA[
     #addonbar-closebutton {
         display: none !important;
     }
+    /* タブの閉じるボタンを非表示に */
+    toolbarbutton.tab-close-button{
+        display: none !important;
+    }
 ]]></>);
 
 style.register(<><![CDATA[

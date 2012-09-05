@@ -1,12 +1,3 @@
-
-ext.add('WWWC', function() {
-    var command = 'e:\\tools\\wwwc\\wwwc.exe';
-    var commandFile = util.openFile(command);
-    var process = Cc["@mozilla.org/process/util;1"].createInstance(Ci.nsIProcess);
-    process.init(commandFile);
-    process.run(false, ["/c", "/e", "/a"], 3);
-}, "WWWC Check updated");
-
 //最近閉じたタブ
 // http://d.hatena.ne.jp/mooz/20091123/p1
 ext.add("list-closed-tabs", function () {
@@ -277,41 +268,58 @@ ext.add('show-memory-report', function(ev, arg) {
 }, 'about:memory');
 
 ext.add('go-nickname', function(ev, arg) {
+     function getFavicon(aURL)
+         (!aURL) ? "chrome://mozapps/skin/places/defaultFavicon.png" : aURL;
+
+    //Opera の Go to nickname をパクル - Griever
+    //http://d.hatena.ne.jp/Griever/20090625/1245933515
+    //を KeySnail + bmany plugin で
     const openMode = "tab";
-    let bmsvc = Cc['@mozilla.org/browser/nav-bookmarks-service;1']
-        .getService(Ci.nsINavBookmarksService);
-    let keywords = function () {
-        let ios = Cc['@mozilla.org/network/io-service;1']
-            .getService(Ci.nsIIOService);
+    var bmsvc = Cc['@mozilla.org/browser/nav-bookmarks-service;1'].getService(Ci.nsINavBookmarksService);
+    var keywords = function () {
+        var ios = Cc['@mozilla.org/network/io-service;1'].getService(Ci.nsIIOService);
         return function (aItemId) {
-            let ret = [];
-            let parentNode = PlacesUtils.getFolderContents(aItemId).root;
+            var ret = [];
+            var parentNode = PlacesUtils.getFolderContents(aItemId).root;
             for (let i = 0; i < parentNode.childCount; i++) {
                 let childNode = parentNode.getChild(i);
                 if (PlacesUtils.nodeIsBookmark(childNode)) {
-                    let uri = ios.newURI(childNode.uri, null, null);
-                    let keyword = bmsvc.getKeywordForURI(uri);
-                    if (keyword) {ret.push(keyword);}
-                } else if (PlacesUtils.nodeIsFolder(childNode) && !PlacesUtils.nodeIsLivemarkContainer(childNode)) {
+                    let keyword = bmsvc.getKeywordForBookmark(childNode.itemId);
+                    if (keyword) ret.push({ keyword: keyword, bookmark: childNode });
+                } else if (PlacesUtils.nodeIsFolder(childNode))
                     ret = ret.concat(arguments.callee(childNode.itemId));
-                }
             }
             return ret;
-        }(1).filter(function (elem, index, array) array.indexOf(elem) == index);
+        }(1);
     }();
     prompt.reader({
         message: "Go Nickname:",
+        completer: function (str) {
+            var completionList = keywords.filter(function(k) k.keyword.indexOf(str) === 0).map(function(k) {
+                return [k.keyword, getFavicon(k.bookmark.icon), k.bookmark.title, k.bookmark.uri];
+            });
+            return {
+                collection: completionList,
+                flags: [0, ICON|IGNORE, 0, 0],
+                origin: 0,
+                query: str
+            };
+        },
         onChange: function (arg) {
+            if (arg.event.keyCode === KeyEvent.DOM_VK_SHIFT ||
+                arg.event.keyCode === KeyEvent.DOM_VK_TAB)
+                return;
+
             var value = arg.textbox.value;
-            var matchKeywords = keywords.filter(function (elem) elem.indexOf(value) === 0);
+            var matchKeywords = keywords.filter(function (k) k.keyword.indexOf(value) === 0);
             if (matchKeywords.length === 1) {
-                plugins.bmany.go(bmsvc.getURIForKeyword(matchKeywords[0]).spec, openMode);
+                plugins.bmany.go(matchKeywords[0].bookmark.uri, openMode);
                 prompt.finish(true);
             }
         },
-        callback: function (value) plugins.bmany.go(getShortcutOrURI(value, {}).spec, openMode)
+        callback: function (value) plugins.bmany.go(matchKeywords[0].bookmark.uri, openMode)
     });
-}, L('ブックマークのキーワードから即座に開く'));
+}, M({ja:'ブックマークのキーワードから即座に開く', en:'Open keyword bookmark'}));
 
 // via http://www.pshared.net/diary/20091004.html
 ext.add('copy-page-info', function(ev, arg) {

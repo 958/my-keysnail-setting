@@ -1,4 +1,3 @@
-
 hook.setHook('MenuPopupShowing', function stopKeySnail(ev) {
     key.suspended = true;
 });

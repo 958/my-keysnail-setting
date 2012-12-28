@@ -1,14 +1,16 @@
 // site local key map
 function fake(k, i) function(){key.feed(k,i)}; function pass(k,i) [k,fake(k,i)]; function ignore(k,i) [k,null];
-function follow(id) function(){plugins.hok.followLink(content.document.getElementById(id), plugins.hok.CURRENT_TAB)};
+function follow(elem) !elem || plugins.hok.followLink(elem, plugins.hok.CURRENT_TAB);
+function followId(id) function(){follow(content.document.getElementById(id))};
+function followSelector(selector) function(){follow(content.document.querySelector(selector))};
 
 plugins.options["site_local_keymap.local_keymap"] = {
     "^https?://mail.google.com/mail/": [
-        pass(['g', 'i'], 3), pass(['g', 's'], 3), pass(['g', 't'], 3), pass(['g', 'd'], 3),
-        pass(['g', 'a'], 3), pass(['g', 'c'], 3), pass(['g', 'k'], 3),
+        pass(['g', 'i']), pass(['g', 's']), pass(['g', 't']), pass(['g', 'd']),
+        pass(['g', 'a']), pass(['g', 'c']), pass(['g', 'k']), pass(['g', 'l']),
         // thread list
-        pass(['*', 'a'], 3), pass(['*', 'n'], 3), pass(['*', 'r'], 3), pass(['*', 'u'], 3),
-        pass(['*', 's'], 3), pass(['*', 't'], 3),
+        pass(['*', 'a']), pass(['*', 'n']), pass(['*', 'r']), pass(['*', 'u']),
+        pass(['*', 's']), pass(['*', 't']),
         // navigation
         ['u', null], ['k', null], ['j', null], ['o', null],
         ['p', null], ['n', null],
@@ -83,20 +85,50 @@ plugins.options["site_local_keymap.local_keymap"] = {
         ["k", function() ext.exec("slideshare-previous")],
         ["F", function() ext.exec("slideshare-toggle-fullscreen")],
     ],
+    "^https?://speakerdeck.com/": [
+        ['j', function () ext.exec("speakerdeck-next")],
+        ['k', function () ext.exec("speakerdeck-previous")],
+        ['F', function () ext.exec("speakerdeck-toggle-fullscreen")], 
+    ],
     "^https?://docs.google.com/viewer": [
-        ['J', follow('nextToolbarButton')], ['K', follow('prevToolbarButton')],
+        ['J', followId('nextToolbarButton')], ['K', followId('prevToolbarButton')],
         [['g', 'g'], fake('<home>')], ['G', fake('<end>')],
-        ['/', follow('searchBox')], ["n", follow('nextSearchToolbarButton')], ["N", follow('prevSearchToolbarButton')],
+        ['/', followId('searchBox')], ["n", followId('nextSearchToolbarButton')], ["N", followId('prevSearchToolbarButton')],
     ],
     "^http://ssr.minidns.net/": [
         ["j", null], ["k", null], ["p", null], ["t", null], ["z", null],
     ],
+    "https?://www.evernote.com/": [
+        ['j', function() {
+            content.document.getElementById('EN_IframePanel_1').contentWindow.focus();
+            key.generateKey(content.document.getElementById('EN_IframePanel_1').contentWindow, KeyEvent.DOM_VK_DOWN, true);
+        }],
+        ['k', function() {
+            content.document.getElementById('EN_IframePanel_1').contentWindow.focus();
+            key.generateKey(content.document.getElementById('EN_IframePanel_1').contentWindow, KeyEvent.DOM_VK_UP, true);
+        }],
+        ['/', function() follow(content.document.querySelector('#gwt-debug-searchBox'))],
+        ['n', function() follow(content.document.querySelector('.selectedNoteSnippet').nextSibling)],
+        ['p', function() follow(content.document.querySelector('.selectedNoteSnippet').previousSibling)],
+        [['g','a'], function() follow(content.document.querySelector('.notebook:first-of-type>div:first-of-type'))],
+        [['g','n'], function() {
+            var note = content.document.querySelector('.selectedNotebook>div:first-of-type');
+            var notes = Array.slice(content.document.querySelectorAll('.notebook>div:first-of-type'));
+            follow(notes[notes.indexOf(note) + 1] || notes[0]);
+        }],
+        [['g','p'], function() {
+            var note = content.document.querySelector('.selectedNotebook>div:first-of-type');
+            var notes = Array.slice(content.document.querySelectorAll('.notebook>div:first-of-type'));
+            follow(notes[notes.indexOf(note) - 1] || notes[notes.length - 1]);
+        }],
+    ],
 };
 
+// ldrnail
 plugins.options["ldrnail.keybind"] = {
     "j" : 'next', "k" : 'prev', "p" : 'pin', "v" : 'view', "o" : 'open', 'l': 'list',
     'C-s': 'siteinfo',
-    "B": function() {
+    "t": function() {
         let link = plugins.ldrnail.currentLink;
         if (link)
             plugins.kungfloo.reblog(link, true, true);
@@ -124,7 +156,13 @@ plugins.options["ldrnail.pre_open_filter"] = function(url) {
         'http://docs.google.com/viewer?url='+encodeURIComponent(url)+'&chrome=true' :
         url;
 }
-plugins.options["ldrnail.default_height"] = 10;
+plugins.options["ldrnail.css_highlight_current_before"] = '';
+plugins.options["ldrnail.css_highlight_current"] = 
+    'outline: 2px solid #871F5F !important;' +
+    'outline-offset: 1px !important;' +
+    '-moz-outline-radius: 3px !important;';
+plugins.options["ldrnail.use_intelligence_scroll"] = true;
+plugins.options["ldrnail.default_height"] = 50;
 plugins.options["ldrnail.siteinfo"] = [
     {
         name: 'Yahoo blog search',
@@ -262,6 +300,24 @@ plugins.options["ProgrammableGesture.actions"]=function(p){with(p){try{return{
 }catch(e){util.fbug(e)}}}
 
 // HoK
+plugins.options['hok.hint_base_style'] = {
+    'position'      : 'fixed',
+    'top'           : '0',
+    'left'          : '0',
+    'z-index'       : '2147483647',
+    'color'         : '#222',
+    'font-family'   : 'MeiryoKe_Gothic',
+    'font-size'     : '9pt',
+    'font-weight'   : 'bold',
+    'line-height'   : '8pt',
+    'padding'       : '2px 4px',
+    'margin'        : '0px',
+    'border'        : 'none',
+    'border-radius' : '4px',
+    'text-transform': 'uppercase',
+    'opacity'       : '0.9',
+    'box-shadow'    : '2px 2px rgba(0,0,0,0.4)',
+};
 plugins.options['hok.actions'] = [
     ['m', 
      M({ja:'右クリックメニューを開く',en:'Open context menu'}),
@@ -289,6 +345,9 @@ plugins.options['hok.actions'] = [
       function(e) plugins.launcher.launch('google-chrome', e.href),
       false, false, "a[href]"],
 ];
+plugins.options["hok.local_queries"] = [
+    ['^https?://www\\.google\\.(co\\.jp|com)/reader/view/', '*.unselectable, *.link'],
+];
 
 // history
 plugins.options['history.max-results'] = 10000;
@@ -311,12 +370,12 @@ plugins.options["follow-link.prevpattern"] = L("\\bback|戻る|^前.*|^<前|←|
 plugins.options['launcher.apps'] = {
     'wwwc-check-update': {
         description: 'WWWC check update',
-        path: 'e:\\tools\\wwwc\\wwwc.exe',
+        path: 'c:\\tools\\wwwc.lnk',
         defaultArgs: ["/c", "/e", "/a"],
     },
     'google-chrome': {
         description: 'Open with Google Chrome',
-        path: 'e:\\tools\\Google Chrome.lnk',
+        path: 'c:\\tools\\Google Chrome.lnk',
         defaultArgs: ['%URL'],
     },
 };

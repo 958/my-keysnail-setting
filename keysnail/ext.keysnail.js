@@ -267,7 +267,7 @@ ext.add('show-memory-report', function(ev, arg) {
     });
 }, 'about:memory');
 
-ext.add('go-nickname', function(ev, arg) {
+ext.add('go-to-keyword', function(ev, arg) {
      function getFavicon(aURL)
          (!aURL) ? "chrome://mozapps/skin/places/defaultFavicon.png" : aURL;
 
@@ -293,7 +293,7 @@ ext.add('go-nickname', function(ev, arg) {
         }(1);
     }();
     prompt.reader({
-        message: "Go Nickname:",
+        message: "Go to keyword:",
         completer: function (str) {
             var completionList = keywords.filter(function(k) k.keyword.indexOf(str) === 0).map(function(k) {
                 return [k.keyword, getFavicon(k.bookmark.icon), k.bookmark.title, k.bookmark.uri];
@@ -519,3 +519,69 @@ ext.add('select-user-agent', function(ev, arg) {
         }
     });
 }, 'Select User Agent');
+
+ext.add('show-links', function(ev, arg) {
+    var selector = {
+        _lastSelection: null,
+        // via XULMigemo
+        _getSelectionController: function(aTarget)
+            aTarget
+                .QueryInterface(Ci.nsIInterfaceRequestor)
+                .getInterface(Ci.nsIWebNavigation)
+                .QueryInterface(Ci.nsIDocShell)
+                .QueryInterface(Ci.nsIInterfaceRequestor)
+                .getInterface(Ci.nsISelectionDisplay)
+                .QueryInterface(Ci.nsISelectionController),
+        selectAndScroll: function(elem) {
+            if (selector._lastSelection) selector._lastSelection.removeAllRanges();
+            var range = elem.ownerDocument.createRange();
+            range.selectNode(elem);
+            var sc = selector._getSelectionController(elem.ownerDocument.defaultView);
+            try{
+                sc.setDisplaySelection(sc.SELECTION_ATTENTION);
+                sc.repaintSelection(sc.SELECTION_NORMAL);
+            }catch(e){ }
+            var selection = sc.getSelection(sc.SELECTION_NORMAL);
+            selector._lastSelection = selection;
+            selection.addRange(range);
+            try {
+                selection.QueryInterface(Ci.nsISelectionPrivate).scrollIntoView(
+                    Ci.nsISelectionController.SELECTION_ANCHOR_REGION, true, 50, 50);
+            }catch(e){ }
+        },
+        destroy: function() {
+            if (selector._lastSelection) selector._lastSelection.removeAllRanges();
+            selector._lastSelection = null;
+        }
+    };
+
+    var links = (function getLinks(win)
+        Array.slice(win.document.querySelectorAll('a[href]')).concat(
+            Array.map(win.frames, getLinks).reduce(function(a, b) a.concat(b), []))
+    )(content);
+    var collection = links.map(function(a)
+        [(img = a.querySelector('img')) ? img.src : '', a.textContent.trim(), a.href]
+    );
+    prompt.selector({
+        message     : 'Links',
+        collection  : collection,
+        flags       : [ICON, 0, 0],
+        style       : [0, 0, style.prompt.url],
+        header      : ['Title', 'URL'],
+        onChange    : function (aArg)
+            (aArg.row) ? selector.selectAndScroll(links[aArg.index]) : void(0),
+        onFinish    : function (aArg)
+            selector.destroy(),
+        keymap      : {
+            'RET'   : 'open',
+            'S-RET' : 'open-background',
+        },
+        actions     : [
+            [function(aIndex) plugins.hok.followLink(links[aIndex], plugins.hok.CURRENT_TAB),
+            'Open', 'open'],
+            [function(aIndex) plugins.hok.followLink(links[aIndex], plugins.hok.NEW_BACKGROUND_TAB),
+            'Open in background', 'open-background'],
+        ]
+    });
+}, 'Show links');
+

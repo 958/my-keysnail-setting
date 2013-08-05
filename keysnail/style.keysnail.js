@@ -13,43 +13,42 @@ style.register(<><![CDATA[
     }
 }}></>);
 */
-style.register(<><![CDATA[
-    /* 選択中行のスタイル */
-    #keysnail-completion-list listitem[selected="true"], #keysnail-completion-list:focus>listitem[selected="true"] {
-        background-color : #BFCEFA !important;
-    }
-    /* IME */
-    #keysnail-prompt-textbox *|input {
-        ime-mode : inactive !important;
-    }
-    /* urlbar の高さを調整 */
-    #urlbar {
-        /*margin: 0 !important;*/
-        /*border: none !important;*/
-    }
-    #urlbar>toolbarbutton, #urlbar dropmarker {
-        display: none !important;
-    }
-    .urlbar-icon {
-        /*padding:0 !important;*/
-    }
-    /* アドオンバーの閉じるボタンを非表示に */
-    #addonbar-closebutton {
-        display: none !important;
-    }
-    /* タブの閉じるボタンを非表示に */
-    toolbarbutton.tab-close-button{
-        display: none !important;
-    }
-]]></>);
+style.register('\
+    /* 選択中行のスタイル */\
+    #keysnail-completion-list listitem[selected="true"], #keysnail-completion-list:focus>listitem[selected="true"] {\
+        background-color : #BFCEFA !important;\
+    }\
+    /* IME */\
+    #keysnail-prompt-textbox *|input {\
+        ime-mode : inactive !important;\
+    }\
+    /* urlbar の高さを調整 */\
+    #urlbar {\
+        /*margin: 0 !important;*/\
+        /*border: none !important;*/\
+    }\
+    #urlbar>toolbarbutton, #urlbar dropmarker {\
+        display: none !important;\
+    }\
+    .urlbar-icon {\
+        /*padding:0 !important;*/\
+    }\
+    /* アドオンバーの閉じるボタンを非表示に */\
+    #addonbar-closebutton {\
+        display: none !important;\
+    }\
+    /* タブの閉じるボタンを非表示に */\
+    toolbarbutton.tab-close-button{\
+        display: none !important;\
+    }\
+');
 
-style.register(<><![CDATA[
-    /* AutoPagerize */
-    hr.autopagerize_page_separator {
-        display:none;
-    }
-    p.autopagerize_page_info {
-        text-align: right;
-        font-size: 10pt;
-    }
-]]></>, style.XHTML);
+style.register('\
+    hr.autopagerize_page_separator {\
+        display:none;\
+    }\
+    p.autopagerize_page_info {\
+        text-align: right;\
+        font-size: 10pt;\
+    }\
+', style.XHTML);

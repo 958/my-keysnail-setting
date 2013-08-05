@@ -24,6 +24,22 @@ plugins.options["site_local_keymap.local_keymap"] = {
         [']', null], ['[', null], ['z', null], ['.', null],
         ['I', null], ['U', null], ['C-s', null], ['T', null]
     ],
+    "^https?://reader.livedoor.com/reader/": [
+        ["j", null], ["k", null], ["s", null], ["v", null], ["p", null], ["o", null],
+        ["g", null], ["z", null], 
+        ["i", function() {
+            try {
+                var w = content.content.wrappedJSObject;
+                var id = w.get_active_item(true).id;
+                if (!id) return;
+                var item = w.get_item_info(id);
+                RIL.saveLink(item.link, item.title, '');
+                display.echoStatusBar('Add RIL :' + item.title);
+            } catch(e) {
+                util.message(e);
+            }
+        }],
+    ],
     "^https?://www.google.(co.jp|com)/reader/view/": [
         // jump
         pass(["g", "h"]), pass(["g", "a"]), pass(["g", "s"]), pass(["g", "S"]),
@@ -31,7 +47,6 @@ plugins.options["site_local_keymap.local_keymap"] = {
         pass(["g", "f"]), pass(["g", "F"]), pass(["g", "c"]), pass(["g", "C"]),
         pass(["g", "e"]), pass(["g", "p"]),
         // navigation
-        ["j", null], ["k", null], ["n", null],
         ["j", null], ["k", null], ["n", null],
         ["p", null], ["N", null], ["P", null], ["X", null],
         ["o", function() {
@@ -66,19 +81,7 @@ plugins.options["site_local_keymap.local_keymap"] = {
         }],
     ],
     "^http://www.tumblr.com/dashboard": [
-        ["t", function() {
-            if (plugins.kungfloo) {
-                plugins.ldrnail.pinnedLinksOrCurrentLink.forEach(function(link) {
-                    plugins.kungfloo.reblog(link, true, false, ["ReBlog - Tumblr link"]);
-                });
-                plugins.ldrnail.clearPin();
-            }
-        }],
-        ["c", function() {
-            let url = plugins.ldrnail.currentLink.href;
-            let postId = parseInt(url.match(/^http:\/\/[^\/]+\/post\/(\d+)/)[1]) + 1;
-            content.location.href = 'http://www.tumblr.com/dashboard/1/' + postId;
-        }],
+        ["j", null], ["k", null], ["r", null], ["R", null], ["l", null], ["n", null],
     ],
     "^https?://www.slideshare.net/": [
         ["j", function() ext.exec("slideshare-next")],
@@ -122,22 +125,92 @@ plugins.options["site_local_keymap.local_keymap"] = {
             follow(notes[notes.indexOf(note) - 1] || notes[notes.length - 1]);
         }],
     ],
+    "^https?://cloud.feedly.com/": [
+        // navigation
+        pass(["g", "m"]), pass(["g", "a"]), pass(["g", "g"]), pass(["g", "l"]),
+        ["J", null], ["/", null], ["r", null],
+        // lists
+        ["j", null], ["k", null], ["n", null], ["p", null],
+        ["o", null], ["v", null], ["M", null],
+        // item
+        ["m", null], ["x", null], ["s", null], ["t", null],
+        ["l", null], ["f", null], ["b", null],
+        ["V", null],
+        // application
+        ["?", null],
+        // other
+        ["z", null], ["Z", null], ["C-z", null],
+        ["i", function() {
+            try {
+                var doc = content.document;
+                var link = doc.querySelector('.selectedEntry .entryHeader>a');
+                RIL.saveLink(link.href, link.textContent, '');
+                display.echoStatusBar('Add RIL :' + link.textContent);
+            } catch(e) {
+                util.fbug(e);
+            }
+        }],
+    ],
+    "^https?://feedpresser.com": [
+        // navigation
+        ["j", function() ext.exec('presser-next')],
+        ["k", function() ext.exec('presser-prev')],
+        ["o", function() ext.exec('presser-open')],
+        ["s", function() ext.exec('presser-star')],
+        ["r", function() ext.exec('presser-reload')],
+        [["g", "a"], function() ext.exec('presser-show-all')],
+        [["g", "u"], function() ext.exec('presser-show-unread')],
+        [["g", "s"], function() ext.exec('presser-show-star')],
+        [["g", "f"], function() ext.exec('presser-select-folder')],
+        [["g", "l"], function() ext.exec('presser-show-list')],
+        ["i", function() {
+            try {
+                var w = content.wrappedJSObject;
+                if (w.$('#show-feed').is(':visible')) {
+                    var elem = w.$('#show-feed-title>a');
+                    var item = {
+                        link: elem.attr('href'),
+                        title: elem.text(),
+                    };
+                    RIL.saveLink(item.link, item.title, '');
+                    display.echoStatusBar('Add RIL :' + item.title);
+                }
+            } catch(e) {
+                util.message(e);
+            }
+        }],
+    ],
 };
 
 // ldrnail
 plugins.options["ldrnail.keybind"] = {
-    "j" : 'next', "k" : 'prev', "p" : 'pin', "v" : 'view', "o" : 'open', 'l': 'list',
+    "j" : 'next', "k" : 'prev', "o" : 'open', 'l': 'list',
+    'V': 'view',
     'C-s': 'siteinfo',
-    "t": function() {
-        let link = plugins.ldrnail.currentLink;
+    'T': function() {
+        var link = plugins.ldrnail.currentLink;
         if (link)
             plugins.kungfloo.reblog(link, true, true);
     },
-    "i" : function() {
-        let titles = [];
+    'M': function() {
+        var titles = [];
         plugins.ldrnail.pinnedItemsOrCurrentItem.forEach(function(item){
-            let url = plugins.ldrnail.getItemLink(item).href;
-            let title = plugins.ldrnail.getItemView(item) || url;
+            var url = plugins.ldrnail.getItemLink(item).href;
+            var title = plugins.ldrnail.getItemView(item) || url;
+            if (url) {
+                plugins.linker.postURL(title, url);
+                titles.push(title);
+            }
+        });
+        plugins.ldrnail.clearPin();
+        if (titles.length > 0)
+            display.echoStatusBar('Linker: ' + titles.join(', '));
+    },
+    'i' : function() {
+        var titles = [];
+        plugins.ldrnail.pinnedItemsOrCurrentItem.forEach(function(item){
+            var url = plugins.ldrnail.getItemLink(item).href;
+            var title = plugins.ldrnail.getItemView(item) || url;
             if (url) {
                 RIL.saveLink(url, title, RIL.xul('clickToSaveTags').value);
                 titles.push(title);
@@ -145,7 +218,7 @@ plugins.options["ldrnail.keybind"] = {
         });
         plugins.ldrnail.clearPin();
         if (titles.length > 0)
-            display.echoStatusBar('Add RIL :' + titles.join(', '));
+            display.echoStatusBar('Add RIL: ' + titles.join(', '));
     },
 };
 plugins.options["ldrnail.pre_open_filter"] = function(url) {
@@ -187,6 +260,9 @@ plugins.options["ldrnail.siteinfo"] = [
         view: './/h3',
     },
 ];
+plugins.options["ldrnail.exclude_urls"] = [
+    /^http:\/\/www\.tumblr\.com\/dashboard/
+];
 
 // tanything
 plugins.options["tanything_opt.keymap"] = util.extendDefaultKeymap({
@@ -226,6 +302,7 @@ plugins.options["twitter_client.keymap"] = util.extendDefaultKeymap({
     "h"     : "refresh-or-back-to-timeline",
     "s"     : "switch-to",
 });
+plugins.options["twitter_client.log_level"] = 0;
 
 // bmany
 plugins.options["bmany.default_open_type"] = "tab";
@@ -240,7 +317,8 @@ plugins.options['hatebnail.show_bookmark_key'] = 'h';
 // kungfloo
 plugins.options['kungfloo.keymap'] = util.extendDefaultKeymap({
     "R" : "reblog",
-    "r" : "reblog-with-dialog"
+    "r" : "reblog-with-dialog",
+    "s" : "reblog-with-selector",
 });
 
 // refcontrol
@@ -370,7 +448,7 @@ plugins.options["follow-link.prevpattern"] = L("\\bback|戻る|^前.*|^<前|←|
 plugins.options['launcher.apps'] = {
     'wwwc-check-update': {
         description: 'WWWC check update',
-        path: 'c:\\tools\\wwwc.lnk',
+        path: 'c:\\tools\\wwwc\\wwwc.exe',
         defaultArgs: ["/c", "/e", "/a"],
     },
     'google-chrome': {
@@ -379,3 +457,7 @@ plugins.options['launcher.apps'] = {
         defaultArgs: ['%URL'],
     },
 };
+
+plugins.options["kkk.sites"] = [
+    "^https?://([0-9a-zA-Z]+\\.)?github\\.com/",
+];

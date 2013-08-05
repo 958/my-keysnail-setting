@@ -181,9 +181,10 @@ if (typeof (gBrowser) != 'undefined') {
     gBrowser.addTabsProgressListener(my.barTabProgressListener);
 }
 */
-
+/*
 if (typeof (vimp) != 'undefined')
     Array.prototype.push.apply(vimp.dialogs, [
         ["scratchpad", "Scratchpad", function() Scratchpad.openScratchpad()],
         ["styleeditor", "Style Editor", function() StyleEditor.toggle()],
     ]);
+*/

@@ -116,9 +116,7 @@ key.setGlobalKey('C-p', function (ev, arg) {
 }, 'ひとつ左のタブへ');
 
 key.setGlobalKey(['C-m', 't'], function (ev, arg) {
-    style.toggle(<><![CDATA[
-        #tabbrowser-tabs { visibility:collapse; }
-    ]]></>);
+    style.toggle('#tabbrowser-tabs { visibility:collapse; }');
 }, 'タブ表示をトグル');
 
 key.setGlobalKey(['C-\\', 'C-c'], function (ev, arg) {
@@ -407,11 +405,7 @@ key.setViewKey(['g', 'n'], function (ev, arg) {
 }, 'Show links', true);
 
 key.setViewKey(['b', 'a'], function (ev, arg) {
-    var tab = gBrowser.mTabContainer.childNodes[gBrowser.mTabContainer.selectedIndex];
-    var bm = Cc['@mozilla.org/browser/nav-bookmarks-service;1'].getService(Ci.nsINavBookmarksService);
-    if (!bm.isBookmarked(tab.linkedBrowser.currentURI)) {
-        bm.insertBookmark(bm.unfiledBookmarksFolder, tab.linkedBrowser.currentURI, -1, tab.linkedBrowser.contentDocument.title);
-    }
+    ext.exec("add-bookmark", arg, ev);
 }, 'お気に入りに追加', true);
 
 key.setViewKey(['b', 'b'], function (ev, arg) {
@@ -515,11 +509,12 @@ key.setViewKey('+', function (ev, arg) {
 }, 'HoK - リンクを連続して開く', true);
 
 key.setViewKey('A', function (ev, arg) {
-    allTabs.open();
+    ext.exec("tanything", arg, ev);
 }, 'タブを一覧表示', true);
 
 key.setViewKey('a', function (ev, arg) {
     ext.exec("tanything", arg, ev);
+    prompt.editModeEnabled = true;
 }, 'タブを一覧表示', true);
 
 key.setViewKey('c', function (ev, arg) {
@@ -551,7 +546,11 @@ key.setViewKey('S', function (ev, arg) {
 }, 'Site Search with Suggest');
 
 key.setViewKey('/', function (ev, arg) {
-    ext.exec("xulmigemo-find-init", arg, ev);
+    command.iSearchForwardKs(ev);
+}, 'Migemo 検索', true);
+
+key.setViewKey('?', function (ev, arg) {
+    command.iSearchBackwardKs(ev);
 }, 'Migemo 検索', true);
 
 key.setViewKey('n', function (ev, arg) {
@@ -700,7 +699,11 @@ key.setViewKey([',', 'R'], function (ev, arg) {
 }, 'Kungfloo - Tombloo Menu', true);
 
 key.setViewKey([',', 'e'], function (ev, arg) {
-    window.evernote_doAction(document.popupNode, 'CLIP_ACTION_FULL_PAGE');
+    let selected = (document.commandDispatcher.focusedWindow || gBrowser.contentWindow).getSelection().toString();
+    if (selected.length > 0)
+        window.evernote_doAction(document.popupNode, 'CLIP_ACTION_SELECTION');
+    else
+        window.evernote_doAction(document.popupNode, 'CLIP_ACTION_FULL_PAGE');
 }, 'Evernote Clip', true);
 
 key.setViewKey([',', 'E'], function (ev, arg) {
@@ -787,6 +790,26 @@ key.setViewKey([',', 'a', 'o'], function (ev, arg) {
     ext.exec("foxage2ch-open-updates");
 }, 'FoxAge2ch - Show updates', true);
 
+key.setViewKey([',', 'm', 'm'], function (ev, arg) {
+    ext.exec("linker-send-current-url");
+}, 'Linker- Send current url to Mobile', true);
+
+key.setViewKey([',', 'm', 't'], function (ev, arg) {
+    ext.exec("linker-send-text");
+}, 'Linker- Send text to mobile', true);
+
+key.setViewKey([',', 'm', 'p'], function (ev, arg) {
+    ext.exec("linker-send-phone-number");
+}, 'Linker- Send phone number to mobile', true);
+
+key.setViewKey([',', ';'], function (ev, arg) {
+    ext.exec('rmine-show-project-issues', arg, ev);
+}, 'Redmine - Show project issues', true);
+
+key.setViewKey([',', '+'], function (ev, arg) {
+    ext.exec('rmine-show-all-issues', arg, ev);
+}, 'Redmine - Show project issues', true);
+
 key.setViewKey('.', function (ev, arg) {
     display.echoStatusBar(window.content.location.href);
 }, 'URL を表示', true);
@@ -859,6 +882,15 @@ key.setEditKey('C-r', function (ev, arg) {
     ext.exec('show-kill-ring-and-select-text-to-paste', arg, ev);
 }, '選択して貼り付け');
 
+key.setEditKey('C-u', function (ev, arg) {
+    var orig = ev.originalTarget || ev.target;
+    if (orig.selectionStart == orig.selectionEnd) {
+        ext.exec('set-the-mark', arg, ev);
+        ext.exec('beginning-of-the-line', arg, ev);
+    }
+    ext.exec('delete-forward-char', arg, ev);
+}, '全削除');
+
 key.setCaretKey('v', function (ev, arg) {
     ext.exec('set-the-mark', arg, ev);
 }, 'マークをセット');
@@ -920,7 +952,11 @@ key.setCaretKey([',', 'r'], function (ev, arg) {
 }, 'Kungfloo - Reblog', true);
 
 key.setCaretKey([',', 'e'], function (ev, arg) {
-    window.evernote_doAction(document.popupNode, 'CLIP_ACTION_SELECTION');
+    let selected = (document.commandDispatcher.focusedWindow || gBrowser.contentWindow).getSelection().toString();
+    if (selected.length > 0)
+        window.evernote_doAction(document.popupNode, 'CLIP_ACTION_SELECTION');
+    else
+        window.evernote_doAction(document.popupNode, 'CLIP_ACTION_FULL_PAGE');
 }, 'Evernote Clip', true);
 
 key.setCaretKey('z', function (ev, arg) {

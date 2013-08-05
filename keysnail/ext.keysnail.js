@@ -77,7 +77,7 @@ if (typeof gBrowser !== 'undefined' && gBrowser.tabContainer) {
         prev = cur;
         cur = gBrowser.tabContainer.selectedIndex;
     }, false);
-    ext.add("toggle-selected-tab", function() gBrowser.tabContainer.selectedIndex = prev, '選択タブをトグルする');
+    ext.add("toggle-selected-tab", function() gBrowser.tabContainer.selectedIndex = prev, L('選択タブをトグルする'));
 }
 
 // Plugin reload
@@ -100,13 +100,6 @@ ext.add("edit-userchrome-css", function(){
     file.append("userChrome.css");
     userscript.editFile(file.path);
 }, M({ja: "userChrome.css を編集", en: "Edit userChrome.css"}));
-
-ext.add("toggle-scroll-bar", function(){
-    style.toggle(<><![CDATA[
-        @namespace html url("http://www.w3.org/1999/xhtml");
-        html|html > scrollbar { visibility: collapse !important; }
-    ]]></>, [style.XHTML, style.XUL].join(""), true);
-}, L("スクロールバーの表示を切り替える"));
 
 ext.add("google-search", function(ev, arg) {
     let engines = util.suggest.getEngines();
@@ -154,7 +147,7 @@ ext.add("search-with-suggest", function(ev, arg) {
         }
     });
 }, "Search with Suggest");
-
+/*
 // https://gist.github.com/754709
 ext.add("option-migrator", function () {
     function getOpt(info) {
@@ -173,12 +166,12 @@ ext.add("option-migrator", function () {
 
             if (!_prefix) _prefix = prefix;
 
-            return util.format(<><![CDATA[
-    %s : {
-        preset: '',
-        description: %s,
-        type: %s
-    }]]></>.toString(),
+            return util.format('\
+    %s : {\
+        preset: "",\
+        description: %s,\
+        type: %s\
+    ',
                 optionName.quote(),
                 descToM(option.description),
                 option.type.quote());
@@ -205,7 +198,7 @@ ext.add("option-migrator", function () {
         }
     });
 }, "Option migrator");
-
+*/
 //https://gist.github.com/342285
 ext.add('input-html-tag', function inputTag(ev, arg) {
     const tags = ["a","address","applet","area","b","base","basefont","blockquote",
@@ -365,14 +358,14 @@ ext.add('copy-page-info', function(ev, arg) {
 ext.add('copy-gist-plugin-info', function(ev, arg) {
     const text = content.document.querySelectorAll('pre')[1].textContent;
     const keys = ['name', 'description lang="ja"', 'updateURL', 'iconURL'];
-    const template = (<><![CDATA[
-<tr>
-<td><img src="%iconURL%"></td>
-<td style="vertical-align:middle"><a href="%URL%">%name%</a></td>
-<td style="vertical-align:middle">%description lang="ja"%</td>
-<td style="vertical-align:middle"><a href="%updateURL%">Install</a></td>
-</tr>
-]]></>).toString();
+    const template = ('\
+<tr>\
+<td><img src="%iconURL%"></td>\
+<td style="vertical-align:middle"><a href="%URL%">%name%</a></td>\
+<td style="vertical-align:middle">%description lang="ja"%</td>\
+<td style="vertical-align:middle"><a href="%updateURL%">Install</a></td>\
+</tr>\
+').toString();
     let src = template;
     src = src.replace('%URL%', content.location.href);
     keys.forEach(function (key) {
@@ -409,16 +402,14 @@ ext.add('xulmigemo-find-prev', function(ev, arg) {
 }, 'XULMigemo find previous');
 
 ext.add('toggle-statusbar-icon', function(ev, arg) {
-    style.toggle(<><![CDATA[
-#keysnail-status,
-#keysnail-prefer-ldrize-container,
-#refcontrol-status-panel,
-#keysnail-twitter-client-container,
-#gmail-checker-status-panel
-{
-    visibility: collapse !important;
-}
-    ]]></>, [style.XHTML, style.XUL].join(""), true);
+    style.toggle("\
+#refcontrol-status-panel,\
+#keysnail-twitter-client-container,\
+#status-bar-panel-FiddlerHook\
+{\
+    visibility: collapse !important;\
+}\
+", [style.XHTML, style.XUL].join(""), true);
 }, 'Toggle statusbar icon');
 
 ext.add('optimize-sqlite', function(ev, arg) {
@@ -585,3 +576,37 @@ ext.add('show-links', function(ev, arg) {
     });
 }, 'Show links');
 
+ext.add('submit-form', function(ev, arg) {
+    var target = ev.originalTarget || ev.target;
+    var result = util.getNodesFromXPath('//form', target);
+    if (result.snapshotLength > 0)
+        result.snapshotItem(0).submit();
+}, 'Submit focused form');
+
+(function () {
+    function googleCompleter(args, extra) {
+        let suggestions = util.suggest.google(extra.query || '');
+
+        return { collection : suggestions, origin : extra.whole.indexOf(extra.left) };
+    }
+
+    shell.add("udic", "Urban dictionary", function (args, extra) {
+        const base = "http://www.urbandictionary.com/define.php?term=%s";
+
+        util.setBoolPref("accessibility.browsewithcaret", false);
+        gBrowser.loadOneTab(util.format(base, encodeURIComponent(args[0])),
+                            null, null, null, extra.bang);
+    }, { bang: true, completer: googleCompleter });
+
+    shell.add("goodic", M({ja: "Goo 辞書", en: "Goo dic"}), function (args, extra) {
+        const base = "http://dictionary.goo.ne.jp/search.php?MT=%s&kind=all&mode=0&IE=UTF-8";
+
+        util.setBoolPref("accessibility.browsewithcaret", false);
+        gBrowser.loadOneTab(util.format(base, encodeURIComponent(args[0])),
+                            null, null, null, extra.bang);
+    }, { bang: true, completer: googleCompleter });
+})();
+
+ext.add('add-bookmark', function(ev, arg) {
+    PlacesCommandHook.bookmarkCurrentPage(true, PlacesUtils.bookmarksMenuFolderId);
+}, 'Add bookarmk');

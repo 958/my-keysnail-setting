@@ -46,7 +46,7 @@ ext.add("list-tab-history", function () {
             if (args[3]== thIdx) style += 'font-weight:bold;';
             return style;
         }
-    }); 
+    });
 },  'List tab history');
 
 // 次へ、前へ
@@ -314,47 +314,6 @@ ext.add('go-to-keyword', function(ev, arg) {
     });
 }, M({ja:'ブックマークのキーワードから即座に開く', en:'Open keyword bookmark'}));
 
-// via http://www.pshared.net/diary/20091004.html
-ext.add('copy-page-info', function(ev, arg) {
-    const templates = {
-        'Title'                 : "{0}",
-        'URL'                   : "{1}",
-        'Shorten URL'           : function(title, url, callback) plugins.lib.shortenURL(url, callback),
-        'Title and URL'         : "{0}\n{1}",
-        'Link (URL)'            : "<a href=\"{1}\"></a>",
-        'Link (Title and URL)'  : "<a href=\"{1}\">{0}</a>",
-        'pukiwiki'              : "[[{0}:{1}]]",
-    };
-
-    function format() {
-        let args = Array.prototype.slice.apply(arguments);
-        let format = args.shift();
-        return format && format.replace(/\{(\d)\}/g, function() args[arguments[1]] || "");
-    }
-
-    function yank(text) {
-        command.setClipboardText(text);
-        display.echoStatusBar('Yanked ' + text);
-    }
-
-    let promptList = [key for (key in templates)];
-
-    prompt.selector({
-        message    : "copy from :",
-        collection : promptList,
-        keymap     : util.extendDefaultKeymap(),
-        callback   : function (aIndex) {
-            if (aIndex < 0) return;
-            let key = promptList[aIndex];
-            let template = templates[key];
-            if (typeof (template) == 'string')
-                yank(format(template, content.document.title, content.location.href));
-            else
-                template(content.document.title, content.location.href, yank);
-        }
-    });
-}, 'Copy page info');
-
 ext.add('copy-gist-plugin-info', function(ev, arg) {
     const text = content.document.querySelectorAll('pre')[1].textContent;
     const keys = ['name', 'description lang="ja"', 'updateURL', 'iconURL'];
@@ -400,17 +359,6 @@ ext.add('xulmigemo-find-prev', function(ev, arg) {
     window.XMigemoFind.target = document.getElementById('content');
     window.XMigemoFind.findPrevious(false);
 }, 'XULMigemo find previous');
-
-ext.add('toggle-statusbar-icon', function(ev, arg) {
-    style.toggle("\
-#refcontrol-status-panel,\
-#keysnail-twitter-client-container,\
-#status-bar-panel-FiddlerHook\
-{\
-    visibility: collapse !important;\
-}\
-", [style.XHTML, style.XUL].join(""), true);
-}, 'Toggle statusbar icon');
 
 ext.add('optimize-sqlite', function(ev, arg) {
     let thread = Cc["@mozilla.org/thread-manager;1"].getService().mainThread;
@@ -477,7 +425,7 @@ function transposeSubString(input, beg, end, to) {
 function transposeChars(ev, arg) {
     let input = ev.originalTarget;
     let begin = input.selectionEnd - (
-            (input.selectionEnd == input.value.length) ? 2 : 
+            (input.selectionEnd == input.value.length) ? 2 :
                 ((input.selectionEnd == 0) ? 0 : 1));
     let end = begin + 1;
     let to = end + (typeof arg === 'number' ? Math.max(arg, 1) : 1);
@@ -610,3 +558,20 @@ ext.add('submit-form', function(ev, arg) {
 ext.add('add-bookmark', function(ev, arg) {
     PlacesCommandHook.bookmarkCurrentPage(true, PlacesUtils.bookmarksMenuFolderId);
 }, 'Add bookarmk');
+
+ext.add('minimize-meory', function(ev, arg) {
+    //CC
+    var os = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
+    window.QueryInterface(Ci.nsIInterfaceRequestor)
+        .getInterface(Ci.nsIDOMWindowUtils)
+        .cycleCollect();
+    os.notifyObservers(null, "child-cc-request", null);
+
+    //GC
+    Cu.forceGC();
+    os.notifyObservers(null, "child-gc-request", null);
+
+    //Minimize memory
+    var mrm = Cc["@mozilla.org/memory-reporter-manager;1"].getService(Ci.nsIMemoryReporterManager);
+    mrm.minimizeMemoryUsage(() => display.echoStatusBar('Memory minimization completed', 1000));
+}, 'Minimize memory usage');

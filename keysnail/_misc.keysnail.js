@@ -2,14 +2,15 @@
 // default keymap
 util.extendDefaultKeymap = function(keymap) {
     let defaultKeymap = {
+        "C-n"   : "prompt-next-completion",
+        "C-p"   : "prompt-previous-completion",
+        "C-d"   : "prompt-next-page",
+        "C-u"   : "prompt-previous-page",
         "C-z"   : "prompt-toggle-edit-mode",
-        "SPC"   : "prompt-next-page",
-        "b"     : "prompt-previous-page",
-        "j"     : "prompt-next-completion",
-        "k"     : "prompt-previous-completion",
-        "g"     : "prompt-beginning-of-candidates",
-        "G"     : "prompt-end-of-candidates",
-        "q"     : "prompt-cancel",
+        "C-j"   : "prompt-continuous-decide",
+        "C-m"   : "prompt-decide",
+        "C-g"   : "prompt-cancel",
+        "Q"     : "prompt-cancel",
     };
     let destKeyMap = {};
     for (let [key, value] in Iterator(defaultKeymap))

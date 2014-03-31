@@ -33,6 +33,9 @@ style.register('\
     .urlbar-icon {\
         /*padding:0 !important;*/\
     }\
+    #addon-bar{\
+        height: 26px !important;\
+    }\
     /* アドオンバーの閉じるボタンを非表示に */\
     #addonbar-closebutton {\
         display: none !important;\
@@ -41,6 +44,15 @@ style.register('\
     toolbarbutton.tab-close-button{\
         display: none !important;\
     }\
+    /* Vertical Tabs */\
+    .tabbrowser-tab{\
+        min-width:16px !important;\
+    }\
+    /*\
+    #verticaltabs-splitter{\
+        margin-bottom:0px !important;\
+    }\
+    */\
 ');
 
 style.register('\
@@ -52,3 +64,13 @@ style.register('\
         font-size: 10pt;\
     }\
 ', style.XHTML);
+
+style.register("\
+    #refcontrol-status-panel,\
+    #htmlruby-entities,\
+    #status-bar-panel-FiddlerHook\
+    {\
+        visibility: collapse !important;\
+    }\
+", [style.XHTML, style.XUL].join(""), true);
+

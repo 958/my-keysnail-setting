@@ -24,22 +24,6 @@ plugins.options["site_local_keymap.local_keymap"] = {
         [']', null], ['[', null], ['z', null], ['.', null],
         ['I', null], ['U', null], ['C-s', null], ['T', null]
     ],
-    "^https?://reader.livedoor.com/reader/": [
-        ["j", null], ["k", null], ["s", null], ["v", null], ["p", null], ["o", null],
-        ["g", null], ["z", null], 
-        ["i", function() {
-            try {
-                var w = content.content.wrappedJSObject;
-                var id = w.get_active_item(true).id;
-                if (!id) return;
-                var item = w.get_item_info(id);
-                RIL.saveLink(item.link, item.title, '');
-                display.echoStatusBar('Add RIL :' + item.title);
-            } catch(e) {
-                util.message(e);
-            }
-        }],
-    ],
     "^https?://www.google.(co.jp|com)/reader/view/": [
         // jump
         pass(["g", "h"]), pass(["g", "a"]), pass(["g", "s"]), pass(["g", "S"]),
@@ -54,7 +38,7 @@ plugins.options["site_local_keymap.local_keymap"] = {
                 var doc = content.document;
                 var cur = doc.querySelector('#current-entry');
                 var link = cur.querySelector('.entry-title-link');
-                openUILinkIn(link.href, 'tabshifted', false, null, 
+                openUILinkIn(link.href, 'tabshifted', false, null,
                         Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService).
                             newURI(content.location.href, null, null));
             } catch(e) { }
@@ -91,7 +75,7 @@ plugins.options["site_local_keymap.local_keymap"] = {
     "^https?://speakerdeck.com/": [
         ['j', function () ext.exec("speakerdeck-next")],
         ['k', function () ext.exec("speakerdeck-previous")],
-        ['F', function () ext.exec("speakerdeck-toggle-fullscreen")], 
+        ['F', function () ext.exec("speakerdeck-toggle-fullscreen")],
     ],
     "^https?://docs.google.com/viewer": [
         ['J', followId('nextToolbarButton')], ['K', followId('prevToolbarButton')],
@@ -125,7 +109,7 @@ plugins.options["site_local_keymap.local_keymap"] = {
             follow(notes[notes.indexOf(note) - 1] || notes[notes.length - 1]);
         }],
     ],
-    "^https?://cloud.feedly.com/": [
+    "^https?://feedly.com/": [
         // navigation
         pass(["g", "m"]), pass(["g", "a"]), pass(["g", "g"]), pass(["g", "l"]),
         ["J", null], ["/", null], ["r", null],
@@ -146,35 +130,6 @@ plugins.options["site_local_keymap.local_keymap"] = {
                 var link = doc.querySelector('.selectedEntry .entryHeader>a');
                 RIL.saveLink(link.href, link.textContent, '');
                 display.echoStatusBar('Add RIL :' + link.textContent);
-            } catch(e) {
-                util.fbug(e);
-            }
-        }],
-    ],
-    "^https?://feedpresser.com": [
-        // navigation
-        ["j", function() ext.exec('presser-next')],
-        ["k", function() ext.exec('presser-prev')],
-        ["o", function() ext.exec('presser-open')],
-        ["s", function() ext.exec('presser-star')],
-        ["r", function() ext.exec('presser-reload')],
-        [["g", "a"], function() ext.exec('presser-show-all')],
-        [["g", "u"], function() ext.exec('presser-show-unread')],
-        [["g", "s"], function() ext.exec('presser-show-star')],
-        [["g", "f"], function() ext.exec('presser-select-folder')],
-        [["g", "l"], function() ext.exec('presser-show-list')],
-        ["i", function() {
-            try {
-                var w = content.wrappedJSObject;
-                if (w.$('#show-feed').is(':visible')) {
-                    var elem = w.$('#show-feed-title>a');
-                    var item = {
-                        link: elem.attr('href'),
-                        title: elem.text(),
-                    };
-                    RIL.saveLink(item.link, item.title, '');
-                    display.echoStatusBar('Add RIL :' + item.title);
-                }
             } catch(e) {
                 util.message(e);
             }
@@ -230,7 +185,7 @@ plugins.options["ldrnail.pre_open_filter"] = function(url) {
         url;
 }
 plugins.options["ldrnail.css_highlight_current_before"] = '';
-plugins.options["ldrnail.css_highlight_current"] = 
+plugins.options["ldrnail.css_highlight_current"] =
     'outline: 2px solid #871F5F !important;' +
     'outline-offset: 1px !important;' +
     '-moz-outline-radius: 3px !important;';
@@ -284,32 +239,35 @@ plugins.options["tanything_opt.keymap"] = util.extendDefaultKeymap({
 plugins.options["twitter_client.prefer_screen_name"] = true;
 plugins.options["twitter_client.update_interval"] = 180000;
 plugins.options["twitter_client.keymap"] = util.extendDefaultKeymap({
-    "t"     : "tweet",
-    "r"     : "reply",
-    "R"     : "official-retweet",
-    "d"     : "send-direct-message",
-    "D"     : "delete-tweet",
-    "f"     : "add-to-favorite",
-    "F"     : "show-user-favorites",
-    "v"     : "display-entire-message",
-    "V"     : "view-in-twitter",
-    "c"     : "copy-tweet",
-    "*"     : "show-target-status",
-    "@"     : "show-mentions",
-    "/"     : "search-word",
-    "o"     : "open-url",
-    "+"     : "show-conversations",
-    "h"     : "refresh-or-back-to-timeline",
-    "s"     : "switch-to",
+    "j" : "prompt-next-completion",
+    "k" : "prompt-previous-completion",
+    "g" : "prompt-beginning-of-candidates",
+    "G" : "prompt-end-of-candidates",
+    "t" : "tweet",
+    "r" : "reply",
+    "R" : "official-retweet",
+    "d" : "send-direct-message",
+    "D" : "delete-tweet",
+    "f" : "add-to-favorite",
+    "F" : "show-user-favorites",
+    "v" : "display-entire-message",
+    "V" : "view-in-twitter",
+    "c" : "copy-tweet",
+    "*" : "show-target-status",
+    "@" : "show-mentions",
+    "/" : "search-word",
+    "o" : "open-url",
+    "+" : "show-conversations",
+    "h" : "refresh-or-back-to-timeline",
+    "s" : "switch-to",
 });
-plugins.options["twitter_client.log_level"] = 0;
 
 // bmany
 plugins.options["bmany.default_open_type"] = "tab";
-plugins.options["bmany.keymap"] = {
+plugins.options["bmany.keymap"] = util.extendDefaultKeymap({
     "E" : "edit-bookmark",
     "D" : "remove-bookmark",
-};
+});
 
 // hatebnail
 plugins.options['hatebnail.show_bookmark_key'] = 'h';
@@ -345,9 +303,6 @@ plugins.options["heaven.dotnet.references"] = [{
     name  : "dotnet",
     param : { rootDocUrl : "http://msdn.microsoft.com/en-us/library/gg145045.aspx" }
 }];
-
-// gmail checker
-plugins.options['gmail_checker.interval'] = 180;
 
 // gesture
 plugins.options["ProgrammableGesture.actions"]=function(p){with(p){try{return{
@@ -397,7 +352,7 @@ plugins.options['hok.hint_base_style'] = {
     'box-shadow'    : '2px 2px rgba(0,0,0,0.4)',
 };
 plugins.options['hok.actions'] = [
-    ['m', 
+    ['m',
      M({ja:'右クリックメニューを開く',en:'Open context menu'}),
      function (e) plugins.hok.openContextMenu(e),
      ],
@@ -461,3 +416,131 @@ plugins.options['launcher.apps'] = {
 plugins.options["kkk.sites"] = [
     "^https?://([0-9a-zA-Z]+\\.)?github\\.com/",
 ];
+
+// Google Tasks
+plugins.options['google_tasks.tasks_keymap'] = util.extendDefaultKeymap({
+    "N"     : "create",
+    "T"     : "toggle-status",
+    "E"     : "edit",
+    "D"     : "delete",
+    "S"     : "select-task-list"
+});
+
+// livebookmark
+plugins.options['live_bookmark.folders_keymap'] = util.extendDefaultKeymap({
+    "j"     : "prompt-next-completion",
+    "k"     : "prompt-previous-completion",
+    "l"     : "show-items",
+    "o"     : "open-home",
+    "r"     : "reload",
+});
+plugins.options['live_bookmark.items_keymap'] = util.extendDefaultKeymap({
+    "j"     : "prompt-next-completion",
+    "k"     : "prompt-previous-completion",
+    'o'     : 'open',
+    'h'     : 'select-folder',
+});
+
+// pocket
+plugins.options['ril.keymap'] = util.extendDefaultKeymap({
+    "j"     : "prompt-next-completion",
+    "k"     : "prompt-previous-completion",
+    "o"     : "open,c",
+    "O"     : "open-background,c",
+    "t"     : "open-text,c",
+    "T"     : "open-text-background,c",
+    "d"     : "delete",
+    "r"     : "sync"
+});
+
+// gpum
+plugins.options['gpum.keymap'] = util.extendDefaultKeymap({
+    "j"     : "prompt-next-completion",
+    "k"     : "prompt-previous-completion",
+    "g"     : "prompt-beginning-of-candidates",
+    "G"     : "prompt-end-of-candidates",
+    "q"     : "prompt-cancel",
+    "p"     : "preview-open",
+    "J"     : "preview-scroll-down",
+    "K"     : "preview-scroll-up",
+    "L"     : "preview-scroll-right",
+    "H"     : "preview-scroll-left",
+    "P"     : "preview-close",
+    "n"     : "select-next-link-in-preview",
+    "N"     : "select-prev-link-in-preview",
+    "O"     : "open-selected-link-in-preview",
+    "r"     : "mark-as-read",
+    "S"     : "mark-as-spam",
+    "D"     : "delete",
+    "a"     : "archive",
+    "s"     : "star",
+    "o"     : "open",
+    "C"     : "compose-gmail",
+    "M"     : "gmail",
+});
+
+//find
+plugins.options['find.keymap'] = util.extendDefaultKeymap({
+});
+
+//quick google
+plugins.options["quick_google.keymap"] = util.extendDefaultKeymap({
+    "j"     : "prompt-next-completion",
+    "k"     : "prompt-previous-completion",
+    "g"     : "prompt-beginning-of-candidates",
+    "G"     : "prompt-end-of-candidates",
+    // specific actions
+    "o"     : "open-current-tab,c",
+    "O"     : "open-new-tab,c",
+    "C-o"   : "open-background-tab,c"
+});
+
+// makelink_snail
+plugins.options["makelink_snail"] = [
+    {
+        "title": "Title",
+        "format": "%TITLE%"
+    },
+    {
+        "title": "URL",
+        "format": "%URL%"
+    },
+    {
+        "title": "Plain",
+        "format": "%TITLE%\n%URL%"
+    },
+    {
+        "title": "HTML",
+        "format": "<a href=\"%URL%\" title=\"%TITLE\">%TEXT%</a>"
+    },
+    {
+        "title": "Quote HTML",
+        "format": "<blockquote cite=\"%url%\"\n title=\"%title%\">\n<p>%text%</p>\n<cite>\n <a href=\"%url%\">%title%</a>\n</cite>\n</blockquote>"
+    },
+    {
+        "title": "Markdown",
+        "format": "[%text%](%url% \"%text%\")"
+    },
+    {
+        "title": "@Markdown",
+        "format": "[%text%]: %url% \"%title%\""
+    },
+];
+
+// ext hook
+plugins.options['exthook.hooks'] = {
+    'twitter-client-.*': {
+        promptSelector: function(aName, aArgument, aEvent) {
+            document.querySelector('#keysnail-twitter-client-container').style.visibility = 'visible';
+        },
+        promptFinish: function(aCanceled, aAgain) {
+            if (!aAgain)
+                document.querySelector('#keysnail-twitter-client-container').style.visibility = 'collapse';
+        },
+    },
+};
+
+// K2Emacs
+plugins.options['K2Emacs.editor'] = 'C:\\tools\\vim\\gvim.exe';
+plugins.options['K2Emacs.sep'] = '\\';
+

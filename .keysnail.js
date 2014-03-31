@@ -7,9 +7,27 @@
 //
 // ===== Options ===
 
-// migemo
+// prompt migemo
 prompt.useMigemo = true;
 prompt.migemoMinWordLength = 3;
+// prompt keymap
+prompt.setActionKey("read", "C-n", "prompt-next-completion");
+prompt.setActionKey("read", "C-p", "prompt-previous-completion");
+prompt.setActionKey("read", "C-d", "prompt-next-page");
+prompt.setActionKey("read", "C-u", "prompt-previous-page");
+prompt.setActionKey("read", "C-g", "prompt-cancel");
+prompt.setActionKey("read", "Q", "prompt-cancel");
+prompt.setActionKey("read", "C-j", "prompt-decide");
+prompt.setActionKey("read", "C-m", "prompt-decide");
+
+prompt.setActionKey("selector", "C-n", "prompt-next-completion");
+prompt.setActionKey("selector", "C-p", "prompt-previous-completion");
+prompt.setActionKey("selector", "C-g", "prompt-cancel");
+prompt.setActionKey("selector", "C-d", "prompt-next-page");
+prompt.setActionKey("selector", "C-u", "prompt-previous-page");
+prompt.setActionKey("selector", "Q", "prompt-cancel");
+prompt.setActionKey("selector", "C-j", "prompt-continuous-decide");
+prompt.setActionKey("selector", "C-m", "prompt-decide");
 
 // ===== Load sub files =====
 (function() {
@@ -25,6 +43,11 @@ prompt.migemoMinWordLength = 3;
             });
     } catch (ex) { util.message(ex); }
 })();
+
+hook.addToHook('PluginLoaded', function(){
+    var yatckContainer = document.querySelector('#keysnail-twitter-client-container');
+    if (yatckContainer) yatckContainer.style.visibility = 'collapse';
+});
 
 //}}%PRESERVE%
 // ========================================================================= //
@@ -95,7 +118,7 @@ key.setGlobalKey('C-k', function (ev, arg) {
     ext.exec("search-with-suggest", arg, ev);
 }, 'Search With Suggest', true);
 
-key.setGlobalKey('C-:', function (ev, arg) {
+key.setGlobalKey('C-;', function (ev, arg) {
     ext.exec("ldrnail-toggle-status", arg, ev);
 }, 'LDRnail - 優先状態の切り替え', true);
 
@@ -107,15 +130,7 @@ key.setGlobalKey('M-:', function (ev, arg) {
     ext.exec('command-interpreter', arg, ev);
 }, 'JavaScript のコードを評価');
 
-key.setGlobalKey('C-n', function (ev, arg) {
-    ext.exec('select-next-tab', arg, ev);
-}, 'ひとつ右のタブへ');
-
-key.setGlobalKey('C-p', function (ev, arg) {
-    ext.exec('select-previous-tab', arg, ev);
-}, 'ひとつ左のタブへ');
-
-key.setGlobalKey(['C-m', 't'], function (ev, arg) {
+key.setGlobalKey(['M-m', 't'], function (ev, arg) {
     style.toggle('#tabbrowser-tabs { visibility:collapse; }');
 }, 'タブ表示をトグル');
 
@@ -172,7 +187,7 @@ key.setGlobalKey(['C-\\', 'p', 'F'], function (ev, arg) {
 }, 'Flash と Silverlight を有効');
 
 key.setGlobalKey(['C-\\', 'i'], function (ev, arg) {
-    ext.exec("toggle-statusbar-icon", arg, ev);
+    ext.exec("toggle-yatck-icon", arg, ev);
 }, 'アドオンバーのアイコン表示をトグル', true);
 
 key.setGlobalKey(['C-\\', 'c', 'r'], function (ev, arg) {
@@ -253,11 +268,11 @@ key.setGlobalKey(['C-,', 'f', 't'], function (ev, arg) {
 }, 'Firebug - tab', true);
 
 key.setGlobalKey(['C-,', 'd'], function (ev, arg) {
-    ext.exec("dlbsnail-show-file-list", arg, ev);
+    ext.exec("s3dlbsnail-show-file-list", arg, ev);
 }, 'Show Download Statusbar Items', true);
 
 key.setGlobalKey(['C-,', 'C-d'], function (ev, arg) {
-    ext.exec("dlbsnail-show-command-for-all", arg, ev);
+    ext.exec("s3dlbsnail-show-command-for-all", arg, ev);
 }, 'dlbasnail-all系コマンド', true);
 
 key.setGlobalKey(['C-,', 'g', 'T'], function (ev, arg) {
@@ -316,7 +331,7 @@ key.setGlobalKey('C-s', function (ev, arg) {
     ext.exec("quick-google", arg, ev);
 }, 'Quick bing', true);
 
-key.setGlobalKey(['C-;', 'b'], function (ev, arg) {
+key.setGlobalKey(['C-:', 'b'], function (ev, arg) {
     var elem = document.commandDispatcher.focusedElement;
     if (elem) {
         elem.blur();
@@ -325,13 +340,128 @@ key.setGlobalKey(['C-;', 'b'], function (ev, arg) {
     _content.focus();
 }, 'コンテンツへフォーカス');
 
-key.setGlobalKey(['C-;', 'p'], function (ev, arg) {
+key.setGlobalKey(['C-:', 'p'], function (ev, arg) {
     var p = document.getElementById("keysnail-prompt");
     if (p.hidden) {
         return;
     }
     document.getElementById("keysnail-prompt-textbox").focus();
 }, 'プロンプトへフォーカス');
+
+key.setGlobalKey(['C-:', 'C-:'], function (ev, arg) {
+    var p = document.querySelector("#keysnail-prompt-textbox");
+    var elem = ev.target;
+    if (elem == p) {
+        elem.blur();
+        gBrowser.focus();
+        _content.focus();
+    } else if (!document.getElementById("keysnail-prompt").hidden) {
+        p.focus();
+    }
+}, 'コンテンツとプロンプトのフォーカスをトグル');
+
+key.setGlobalKey(['C-w', 'v'], function (ev, arg) {
+    tileTabs.menuActions('new-2vert', null);
+}, '新しくタブを縦分割する');
+
+key.setGlobalKey(['C-w', 'C-v'], function (ev, arg) {
+    var collection = Array.slice(gBrowser.mTabContainer.childNodes)
+        .map(function(tab, i) [util.getFaviconPath(tab.linkedBrowser.contentWindow.location.href), tab.label, tab.linkedBrowser.contentWindow.location.href, i]);
+
+    prompt.selector({
+        message             : "select tab: ",
+        initialIndex        : gBrowser.mTabContainer.selectedIndex,
+        flags               : [ICON | IGNORE, 0, 0, IGNORE | HIDDEN],
+        collection          : collection,
+        header              : ["title", "url"],
+        actions             : function(aIndex) {
+            if (aIndex >= 0) {
+                let index = collection[aIndex][3];
+                setTimeout(function() tileTabs.menuActions('tile-right', index), 100);
+            }
+        }
+    });
+}, 'タブを指定して縦分割を追加する');
+
+key.setGlobalKey(['C-w', 's'], function (ev, arg) {
+    tileTabs.menuActions('new-2horiz', null);
+}, '新しくタブを横分割する');
+
+key.setGlobalKey(['C-w', 'C-s'], function (ev, arg) {
+    var collection = Array.slice(gBrowser.mTabContainer.childNodes)
+        .map(function(tab, i) [util.getFaviconPath(tab.linkedBrowser.contentWindow.location.href), tab.label, tab.linkedBrowser.contentWindow.location.href, i]);
+
+    prompt.selector({
+        message             : "select tab: ",
+        initialIndex        : gBrowser.mTabContainer.selectedIndex,
+        flags               : [ICON | IGNORE, 0, 0, IGNORE | HIDDEN],
+        collection          : collection,
+        header              : ["title", "url"],
+        actions             : function(aIndex) {
+            if (aIndex >= 0) {
+                let index = collection[aIndex][3];
+                setTimeout(function() tileTabs.menuActions('tile-below', index), 100);
+            }
+        }
+    });
+}, 'タブを指定して横分割を追加する');
+
+key.setGlobalKey(['C-w', 'c'], function (ev, arg) {
+    tileTabs.menuActions('untile', -1);
+}, 'アクティブなタイルのタブ分割をやめる');
+
+key.setGlobalKey(['C-w', 'C-c'], function (ev, arg) {
+    tileTabs.menuActions('untile', null);
+}, '全てのタブ分割をやめる');
+
+key.setGlobalKey(['C-w', 'b'], function (ev, arg) {
+    tileTabs.menuActions('sync', null);
+}, 'タイルのスクロール同期をトグルする');
+
+key.setGlobalKey(['C-w', 'j'], function (ev, arg) {
+    tileTabs.menuActions('activate-below', null);
+}, '下のタイルをアクティブにする');
+
+key.setGlobalKey(['C-w', 'k'], function (ev, arg) {
+    tileTabs.menuActions('activate-above', null);
+}, '上のタイルをアクティブにする');
+
+key.setGlobalKey(['C-w', 'l'], function (ev, arg) {
+    tileTabs.menuActions('activate-right', null);
+}, '右のタイルをアクティブにする');
+
+key.setGlobalKey(['C-w', 'h'], function (ev, arg) {
+    tileTabs.menuActions('activate-left', null);
+}, '左のタイルをアクティブにする');
+
+key.setGlobalKey(['C-w', 'a'], function (ev, arg) {
+    if (!gBrowser.selectedTab.hasAttribute('tiletabs-assigned'))
+        return;
+
+    var collection = Array.slice(gBrowser.mTabContainer.childNodes)
+        .map(function(tab, i) [util.getFaviconPath(tab.linkedBrowser.contentWindow.location.href), tab.label, tab.linkedBrowser.contentWindow.location.href, i]);
+    prompt.selector({
+        message             : "select tab: ",
+        initialIndex        : gBrowser.mTabContainer.selectedIndex,
+        flags               : [ICON | IGNORE, 0, 0, IGNORE | HIDDEN],
+        collection          : collection,
+        header              : ["title", "url"],
+        actions             : function(aIndex) {
+            if (aIndex >= 0) {
+                let index = collection[aIndex][3];
+                tileTabs.menuActions('assign', index);
+            }
+        }
+    });
+}, 'アクティブなタイルのページを変更する');
+
+key.setViewKey('C-n', function (ev, arg) {
+    ext.exec('select-next-tab', arg, ev);
+}, 'ひとつ右のタブへ');
+
+key.setViewKey('C-p', function (ev, arg) {
+    ext.exec('select-previous-tab', arg, ev);
+}, 'ひとつ左のタブへ');
 
 key.setViewKey('u', function (ev) {
     undoCloseTab();
@@ -626,8 +756,8 @@ key.setViewKey('y', function (ev, arg) {
 }, 'ページの URL をコピー');
 
 key.setViewKey('Y', function (ev, arg) {
-    ext.exec("copy-page-info", arg, ev);
-}, 'タイトルやURLをコピー');
+    ext.exec('makeLinkSnail', arg, ev);
+}, 'makeLinkSnail');
 
 key.setViewKey('C-Y', function (ev, arg) {
     ext.exec("copy-gist-plugin-info", arg, ev);
@@ -854,7 +984,7 @@ key.setEditKey('C-[', function (ev, arg) {
     ext.exec("input-html-tag", arg, ev);
 }, 'HTMLタグを挿入');
 
-key.setEditKey('C-n', function (ev, arg) {
+key.setEditKey(['C-e', 'C-n'], function (ev, arg) {
     ext.exec("dabbrev-expand-with-suggestions", arg, ev);
 }, '略語展開');
 
@@ -936,14 +1066,14 @@ key.setCaretKey('w', function (ev, arg) {
 }, 'キャレットを一単語右へ移動');
 
 key.setCaretKey('b', function (ev, arg) {
-    ext.exec('move-caret-to-theleft-by-word', arg, ev);
+    ext.exec('move-caret-to-the-left-by-word', arg, ev);
 }, 'キャレットを一単語左へ移動');
 
 key.setCaretKey('s', function (ev, arg) {
     ext.exec("swap-caret", arg, ev);
 }, 'キャレットを交換', true);
 
-key.setCaretKey('y', function (ev) {
+key.setCaretKey('y', function (ev, arg) {
     ext.exec('copy-selected-text', arg, ev);
 }, '選択中のテキストをコピー');
 

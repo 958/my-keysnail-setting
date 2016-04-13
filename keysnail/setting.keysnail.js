@@ -24,46 +24,6 @@ plugins.options["site_local_keymap.local_keymap"] = {
         [']', null], ['[', null], ['z', null], ['.', null],
         ['I', null], ['U', null], ['C-s', null], ['T', null]
     ],
-    "^https?://www.google.(co.jp|com)/reader/view/": [
-        // jump
-        pass(["g", "h"]), pass(["g", "a"]), pass(["g", "s"]), pass(["g", "S"]),
-        pass(["g", "u"]), pass(["g", "t"]), pass(["g", "T"]), pass(["g", "d"]),
-        pass(["g", "f"]), pass(["g", "F"]), pass(["g", "c"]), pass(["g", "C"]),
-        pass(["g", "e"]), pass(["g", "p"]),
-        // navigation
-        ["j", null], ["k", null], ["n", null],
-        ["p", null], ["N", null], ["P", null], ["X", null],
-        ["o", function() {
-            try {
-                var doc = content.document;
-                var cur = doc.querySelector('#current-entry');
-                var link = cur.querySelector('.entry-title-link');
-                openUILinkIn(link.href, 'tabshifted', false, null,
-                        Cc["@mozilla.org/network/io-service;1"].getService(Ci.nsIIOService).
-                            newURI(content.location.href, null, null));
-            } catch(e) { }
-        }],
-        // item
-        ["s", null], ["L", null], ["t", null], ["S", null],
-        ["D", null], ["v", null], ["c", null],
-        ["C", null], ["m", null], ["T", null],
-        // application
-        ["r", null], ["u", null], ["1", null], ["2", null],
-        ["/", null], ["=", null], ["-", null],
-        // other
-        [".", function() content.document.querySelector('#viewer-entries-container').scrollTop += 100],
-        [">", function() content.document.querySelector('#viewer-entries-container').scrollTop -= 100],
-        ["z", null],
-        ["i", function() {
-            try {
-                var doc = content.document;
-                var cur = doc.querySelector('#current-entry');
-                var link = cur.querySelector('.entry-title-link');
-                RIL.saveLink(link.href, link.textContent, '');
-                display.echoStatusBar('Add RIL :' + link.textContent);
-            } catch(e) { }
-        }],
-    ],
     "^http://www.tumblr.com/dashboard": [
         ["j", null], ["k", null], ["r", null], ["R", null], ["l", null], ["n", null],
     ],
@@ -81,59 +41,6 @@ plugins.options["site_local_keymap.local_keymap"] = {
         ['J', followId('nextToolbarButton')], ['K', followId('prevToolbarButton')],
         [['g', 'g'], fake('<home>')], ['G', fake('<end>')],
         ['/', followId('searchBox')], ["n", followId('nextSearchToolbarButton')], ["N", followId('prevSearchToolbarButton')],
-    ],
-    "^http://ssr.minidns.net/": [
-        ["j", null], ["k", null], ["p", null], ["t", null], ["z", null],
-    ],
-    "https?://www.evernote.com/": [
-        ['j', function() {
-            content.document.getElementById('EN_IframePanel_1').contentWindow.focus();
-            key.generateKey(content.document.getElementById('EN_IframePanel_1').contentWindow, KeyEvent.DOM_VK_DOWN, true);
-        }],
-        ['k', function() {
-            content.document.getElementById('EN_IframePanel_1').contentWindow.focus();
-            key.generateKey(content.document.getElementById('EN_IframePanel_1').contentWindow, KeyEvent.DOM_VK_UP, true);
-        }],
-        ['/', function() follow(content.document.querySelector('#gwt-debug-searchBox'))],
-        ['n', function() follow(content.document.querySelector('.selectedNoteSnippet').nextSibling)],
-        ['p', function() follow(content.document.querySelector('.selectedNoteSnippet').previousSibling)],
-        [['g','a'], function() follow(content.document.querySelector('.notebook:first-of-type>div:first-of-type'))],
-        [['g','n'], function() {
-            var note = content.document.querySelector('.selectedNotebook>div:first-of-type');
-            var notes = Array.slice(content.document.querySelectorAll('.notebook>div:first-of-type'));
-            follow(notes[notes.indexOf(note) + 1] || notes[0]);
-        }],
-        [['g','p'], function() {
-            var note = content.document.querySelector('.selectedNotebook>div:first-of-type');
-            var notes = Array.slice(content.document.querySelectorAll('.notebook>div:first-of-type'));
-            follow(notes[notes.indexOf(note) - 1] || notes[notes.length - 1]);
-        }],
-    ],
-    "^https?://feedly.com/": [
-        // navigation
-        pass(["g", "m"]), pass(["g", "a"]), pass(["g", "g"]), pass(["g", "l"]),
-        ["J", null], ["/", null], ["r", null],
-        // lists
-        ["j", null], ["k", null], ["n", null], ["p", null],
-        ["o", null], ["v", null], ["M", null],
-        // item
-        ["m", null], ["x", null], ["s", null], ["t", null],
-        ["l", null], ["f", null], ["b", null],
-        ["V", null],
-        // application
-        ["?", null],
-        // other
-        ["z", null], ["Z", null], ["C-z", null],
-        ["i", function() {
-            try {
-                var doc = content.document;
-                var link = doc.querySelector('.selectedEntry .entryHeader>a');
-                RIL.saveLink(link.href, link.textContent, '');
-                display.echoStatusBar('Add RIL :' + link.textContent);
-            } catch(e) {
-                util.message(e);
-            }
-        }],
     ],
 };
 
@@ -192,6 +99,14 @@ plugins.options["ldrnail.css_highlight_current"] =
 plugins.options["ldrnail.use_intelligence_scroll"] = true;
 plugins.options["ldrnail.default_height"] = 50;
 plugins.options["ldrnail.siteinfo"] = [
+    {
+        'name': 'Google(local)',
+        'exampleURL': 'http://www.google.com/',
+        'paragraph': 'id("res")//div[contains(concat(" ",normalize-space(@class)," ")," g ")]|id("res")//li[contains(concat(" ",normalize-space(@class)," ")," g ")]|id("ires")//div[contains(concat(" ",normalize-space(@class)," ")," g ")]',
+        'domain': '^https?://(www|encrypted)\.(?:l\.)?google\.(?:[^.]+\.)?[^./]+/',
+        'link': './/a',
+        'stripe': 1,
+    },
     {
         name: 'Yahoo blog search',
         domain: '^http://blog\\.search\\.yahoo\\.co\\.jp/search\\?.+',
@@ -292,11 +207,6 @@ plugins.options['refcontrol.sites'] = {
     'ameba.jp'            : '',
     'nagamochi.info'      : '',
 };
-
-// Login manager
-plugins.options['login_manager.auto_login'] = [
-    'google', 'hatena'
-];
 
 // heaven's door for .NET
 plugins.options["heaven.dotnet.references"] = [{

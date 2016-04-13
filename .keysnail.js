@@ -54,9 +54,9 @@ hook.addToHook('PluginLoaded', function(){
 
 // ========================= Special key settings ========================== //
 
-key.quitKey              = "ESC";
+key.quitKey              = "C-[";
 key.helpKey              = "<f1>";
-key.escapeKey            = "Not defined";
+key.escapeKey            = "ESC";
 key.macroStartKey        = "S-<f11>";
 key.macroEndKey          = "S-<f12>";
 key.universalArgumentKey = "M--";
@@ -76,34 +76,28 @@ hook.setHook('MenuPopupHiding', function restartKeySnail(ev) {
 });
 
 hook.setHook('KeyBoardQuit', function (aEvent) {
-    if (key.currentKeySequence.length)
-        return;
+    if (key.currentKeySequence.length) return;
     command.closeFindBar();
-    if ("allTabs" in window && allTabs.isOpen)
-        allTabs.close();
-    if (aEvent.target !== document.getElementById("keysnail-prompt-textbox"))
-        try {
-            prompt.finish(true);
-        } catch(e) { }
+    if ("allTabs" in window && allTabs.isOpen) allTabs.close();
+    if (aEvent.target !== document.getElementById("keysnail-prompt-textbox")) try {
+        prompt.finish(true);
+    } catch(e) {}
     util.message(KeySnail.windowType);
-    if (KeySnail.windowType != "navigator:browser")
-        window.close();
+    if (KeySnail.windowType != "navigator:browser") window.close();
     if (util.isCaretEnabled()) {
-        if (command.marked(aEvent))
-            command.resetMark(aEvent);
+        if (command.marked(aEvent)) command.resetMark(aEvent);
         util.setBoolPref("accessibility.browsewithcaret", false);
-    } else
-        goDoCommand("cmd_selectNone");
-    if (KeySnail.windowType === "navigator:browser")
-        key.generateKey(aEvent.originalTarget, KeyEvent.DOM_VK_ESCAPE, true);
-    if ("blur" in aEvent.target)
-        aEvent.target.blur();
-    if (typeof gBrowser != "undefined")
-        gBrowser.focus();
-    if (content)
-        content.focus();
+    } else goDoCommand("cmd_selectNone");
+    if (KeySnail.windowType === "navigator:browser") key.generateKey(aEvent.originalTarget, KeyEvent.DOM_VK_ESCAPE, true);
+    if ("blur" in aEvent.target) aEvent.target.blur();
+    if (typeof gBrowser != "undefined") gBrowser.focus();
+    if (content) content.focus();
 });
 
+hook.setHook('PluginLoaded', function () {
+    var yatckContainer = document.querySelector('#keysnail-twitter-client-container');
+    if (yatckContainer) yatckContainer.style.visibility = 'collapse';
+});
 
 
 
@@ -178,29 +172,9 @@ key.setGlobalKey(['C-\\', 'C-p'], function (ev, arg) {
     ext.exec("firefox-plugin-manager-show", arg, ev);
 }, 'プラグインマネージャ');
 
-key.setGlobalKey(['C-\\', 'p', 'f'], function (ev, arg) {
-    ext.exec("firefox-plugin-manager-disable", "flash|silverlight", ev);
-}, 'Flash と Silverlight を無効');
-
-key.setGlobalKey(['C-\\', 'p', 'F'], function (ev, arg) {
-    ext.exec("firefox-plugin-manager-enable", "flash|silverlight", ev);
-}, 'Flash と Silverlight を有効');
-
 key.setGlobalKey(['C-\\', 'i'], function (ev, arg) {
     ext.exec("toggle-yatck-icon", arg, ev);
 }, 'アドオンバーのアイコン表示をトグル', true);
-
-key.setGlobalKey(['C-\\', 'c', 'r'], function (ev, arg) {
-    plugins.cookieManager.removeCookiesByHost(content.location.host);
-}, 'Cookie Manager - 現在のホストのクッキーを削除', true);
-
-key.setGlobalKey(['C-\\', 'c', 'l'], function (ev, arg) {
-    ext.exec("cookie-manager-show-list", content.location.host, ev);
-}, 'Cookie Manager - 現在のホストのクッキーを表示', true);
-
-key.setGlobalKey(['C-\\', 'c', 'a'], function (ev, arg) {
-    ext.exec("cookie-manager-show-list", arg, ev);
-}, 'Cookie Manager - 全てのクッキーを表示', true);
 
 key.setGlobalKey(['C-\\', 'D'], function (ev, arg) {
     ext.exec("optimize-sqlite", arg, ev);
@@ -360,145 +334,33 @@ key.setGlobalKey(['C-:', 'C-:'], function (ev, arg) {
     }
 }, 'コンテンツとプロンプトのフォーカスをトグル');
 
-key.setGlobalKey(['C-w', 'v'], function (ev, arg) {
-    tileTabs.menuActions('new-2vert', null);
-}, '新しくタブを縦分割する');
+key.setGlobalKey(['C-w', 'd', 'n'], function (ev, arg) {
+    ext.exec("close-all-tabs-on-right", arg, ev);
+}, '右側のタブを全て閉じる', true);
 
-key.setGlobalKey(['C-w', 'C-v'], function (ev, arg) {
-    var collection = Array.slice(gBrowser.mTabContainer.childNodes)
-        .map(function(tab, i) [util.getFaviconPath(tab.linkedBrowser.contentWindow.location.href), tab.label, tab.linkedBrowser.contentWindow.location.href, i]);
+key.setGlobalKey(['C-w', 'd', 'p'], function (ev, arg) {
+    ext.exec("close-all-tabs-on-left", arg, ev);
+}, '左側のタブを全て閉じる', true);
 
-    prompt.selector({
-        message             : "select tab: ",
-        initialIndex        : gBrowser.mTabContainer.selectedIndex,
-        flags               : [ICON | IGNORE, 0, 0, IGNORE | HIDDEN],
-        collection          : collection,
-        header              : ["title", "url"],
-        actions             : function(aIndex) {
-            if (aIndex >= 0) {
-                let index = collection[aIndex][3];
-                setTimeout(function() tileTabs.menuActions('tile-right', index), 100);
-            }
-        }
-    });
-}, 'タブを指定して縦分割を追加する');
+key.setGlobalKey(['C-w', 'C-w'], function (ev) {
+    BrowserCloseTabOrWindow();
+}, 'タブ / ウィンドウを閉じる');
 
-key.setGlobalKey(['C-w', 's'], function (ev, arg) {
-    tileTabs.menuActions('new-2horiz', null);
-}, '新しくタブを横分割する');
+key.setGlobalKey(['C-w', 'q'], function (ev, arg) {
+    ext.exec("ril-append-and-close", arg, ev);
+}, 'RIL - 現在のタブを RIL に追加してタブを閉じる', true);
 
-key.setGlobalKey(['C-w', 'C-s'], function (ev, arg) {
-    var collection = Array.slice(gBrowser.mTabContainer.childNodes)
-        .map(function(tab, i) [util.getFaviconPath(tab.linkedBrowser.contentWindow.location.href), tab.label, tab.linkedBrowser.contentWindow.location.href, i]);
-
-    prompt.selector({
-        message             : "select tab: ",
-        initialIndex        : gBrowser.mTabContainer.selectedIndex,
-        flags               : [ICON | IGNORE, 0, 0, IGNORE | HIDDEN],
-        collection          : collection,
-        header              : ["title", "url"],
-        actions             : function(aIndex) {
-            if (aIndex >= 0) {
-                let index = collection[aIndex][3];
-                setTimeout(function() tileTabs.menuActions('tile-below', index), 100);
-            }
-        }
-    });
-}, 'タブを指定して横分割を追加する');
-
-key.setGlobalKey(['C-w', 'c'], function (ev, arg) {
-    tileTabs.menuActions('untile', -1);
-}, 'アクティブなタイルのタブ分割をやめる');
-
-key.setGlobalKey(['C-w', 'C-c'], function (ev, arg) {
-    tileTabs.menuActions('untile', null);
-}, '全てのタブ分割をやめる');
-
-key.setGlobalKey(['C-w', 'b'], function (ev, arg) {
-    tileTabs.menuActions('sync', null);
-}, 'タイルのスクロール同期をトグルする');
-
-key.setGlobalKey(['C-w', 'j'], function (ev, arg) {
-    tileTabs.menuActions('activate-below', null);
-}, '下のタイルをアクティブにする');
-
-key.setGlobalKey(['C-w', 'k'], function (ev, arg) {
-    tileTabs.menuActions('activate-above', null);
-}, '上のタイルをアクティブにする');
-
-key.setGlobalKey(['C-w', 'l'], function (ev, arg) {
-    tileTabs.menuActions('activate-right', null);
-}, '右のタイルをアクティブにする');
-
-key.setGlobalKey(['C-w', 'h'], function (ev, arg) {
-    tileTabs.menuActions('activate-left', null);
-}, '左のタイルをアクティブにする');
-
-key.setGlobalKey(['C-w', 'a'], function (ev, arg) {
-    if (!gBrowser.selectedTab.hasAttribute('tiletabs-assigned'))
-        return;
-
-    var collection = Array.slice(gBrowser.mTabContainer.childNodes)
-        .map(function(tab, i) [util.getFaviconPath(tab.linkedBrowser.contentWindow.location.href), tab.label, tab.linkedBrowser.contentWindow.location.href, i]);
-    prompt.selector({
-        message             : "select tab: ",
-        initialIndex        : gBrowser.mTabContainer.selectedIndex,
-        flags               : [ICON | IGNORE, 0, 0, IGNORE | HIDDEN],
-        collection          : collection,
-        header              : ["title", "url"],
-        actions             : function(aIndex) {
-            if (aIndex >= 0) {
-                let index = collection[aIndex][3];
-                tileTabs.menuActions('assign', index);
-            }
-        }
-    });
-}, 'アクティブなタイルのページを変更する');
-
-key.setViewKey('C-n', function (ev, arg) {
+key.setViewKey([['C-n'], ['g', 't']], function (ev, arg) {
     ext.exec('select-next-tab', arg, ev);
 }, 'ひとつ右のタブへ');
 
-key.setViewKey('C-p', function (ev, arg) {
+key.setViewKey([['g', 'T'], ['C-p']], function (ev, arg) {
     ext.exec('select-previous-tab', arg, ev);
 }, 'ひとつ左のタブへ');
-
-key.setViewKey('u', function (ev) {
-    undoCloseTab();
-}, '閉じたタブを元に戻す');
-
-key.setViewKey('U', function (ev, arg) {
-    ext.exec("list-closed-tabs", arg, ev);
-}, 'List closed tabs', true);
-
-key.setViewKey('t', function (ev, arg) {
-    shell.input("tabopen ");
-}, 'Tab open', true);
-
-key.setViewKey('T', function (ev, arg) {
-    var tab = gBrowser.mCurrentTab;
-    tab.pinned ? gBrowser.unpinTab(tab) : gBrowser.pinTab(tab);
-}, 'ピン留めのトグル');
-
-key.setViewKey('H', function (ev, arg) {
-    ext.exec('back', arg, ev);
-}, '戻る');
-
-key.setViewKey('L', function (ev, arg) {
-    ext.exec('forward', arg, ev);
-}, '進む');
 
 key.setViewKey(['g', 'i'], function (ev, arg) {
     ext.exec('focus-to-the-first-textarea', arg, ev);
 }, '最初のインプットエリアへフォーカス');
-
-key.setViewKey(['g', 't'], function (ev, arg) {
-    ext.exec('select-next-tab', arg, ev);
-}, 'ひとつ右のタブへ');
-
-key.setViewKey(['g', 'T'], function (ev, arg) {
-    ext.exec('select-previous-tab', arg, ev);
-}, 'ひとつ左のタブへ');
 
 key.setViewKey(['g', 'u'], function (ev, arg) {
     ext.exec("upper-directory", arg, ev);
@@ -534,6 +396,31 @@ key.setViewKey(['g', 'n'], function (ev, arg) {
     ext.exec("show-links", arg, ev);
 }, 'Show links', true);
 
+key.setViewKey('u', function (ev) {
+    undoCloseTab();
+}, '閉じたタブを元に戻す');
+
+key.setViewKey('U', function (ev, arg) {
+    ext.exec("list-closed-tabs", arg, ev);
+}, 'List closed tabs', true);
+
+key.setViewKey('t', function (ev, arg) {
+    shell.input("tabopen ");
+}, 'Tab open', true);
+
+key.setViewKey('T', function (ev, arg) {
+    var tab = gBrowser.mCurrentTab;
+    tab.pinned ? gBrowser.unpinTab(tab) : gBrowser.pinTab(tab);
+}, 'ピン留めのトグル');
+
+key.setViewKey('H', function (ev, arg) {
+    ext.exec('back', arg, ev);
+}, '戻る');
+
+key.setViewKey('L', function (ev, arg) {
+    ext.exec('forward', arg, ev);
+}, '進む');
+
 key.setViewKey(['b', 'a'], function (ev, arg) {
     ext.exec("add-bookmark", arg, ev);
 }, 'お気に入りに追加', true);
@@ -562,41 +449,9 @@ key.setViewKey(['b', 'l'], function (ev, arg) {
     ext.exec("live-bookmark-select-folder", arg, ev);
 }, 'ライブブックマークを一覧表示', true);
 
-key.setViewKey(['w', 'd', 'n'], function (ev, arg) {
-    ext.exec("close-all-tabs-on-right", arg, ev);
-}, '右側のタブを全て閉じる', true);
-
-key.setViewKey(['w', 'd', 'p'], function (ev, arg) {
-    ext.exec("close-all-tabs-on-left", arg, ev);
-}, '左側のタブを全て閉じる', true);
-
-key.setViewKey([['w', 'w'], ['d']], function (ev) {
+key.setViewKey(['d'], function (ev) {
     BrowserCloseTabOrWindow();
 }, 'タブ / ウィンドウを閉じる');
-
-key.setViewKey(['w', 'q'], function (ev, arg) {
-    ext.exec("ril-append-and-close", arg, ev);
-}, 'RIL - 現在のタブを RIL に追加してタブを閉じる', true);
-
-key.setViewKey(['w', 'g', 'l'], function (ev, arg) {
-    ext.exec("tabgroup-list", arg, ev);
-}, 'Show tabgroup list', true);
-
-key.setViewKey(['w', 'g', 'j'], function (ev, arg) {
-    ext.exec("tabgroup-next", arg, ev);
-}, 'Next tabgroup');
-
-key.setViewKey(['w', 'g', 'k'], function (ev, arg) {
-    ext.exec("tabgroup-prev", arg, ev);
-}, 'Previous tabgroup');
-
-key.setViewKey(['w', 'g', 'c'], function (ev, arg) {
-    ext.exec("tabgroup-create", arg, ev);
-}, 'Create new tabgroup', true);
-
-key.setViewKey(['w', 'g', 'd'], function (ev, arg) {
-    ext.exec("tabgroup-close", arg, ev);
-}, 'Close current tabgroup', true);
 
 key.setViewKey('q', function (ev, arg) {
     display.echoStatusBar((new Date).toString(), 5000);
@@ -676,7 +531,7 @@ key.setViewKey('S', function (ev, arg) {
 }, 'Site Search with Suggest');
 
 key.setViewKey('/', function (ev, arg) {
-    command.iSearchForwardKs(ev);
+    ext.exec("xulmigemo-find-init", arg, ev);
 }, 'Migemo 検索', true);
 
 key.setViewKey('?', function (ev, arg) {
@@ -856,70 +711,6 @@ key.setViewKey([',', 'l', 't'], function (ev, arg) {
     ext.exec("ril-toggle", arg, ev);
 }, 'RIL - 現在のタブを RIL に追加 または 削除', true);
 
-key.setViewKey([',', 'f', 'n'], function (ev, arg) {
-    ext.exec("facebook-show-news-feed", arg, ev);
-}, 'facebook - ニュースフィード', true);
-
-key.setViewKey([',', 'f', 'w'], function (ev, arg) {
-    ext.exec("facebook-show-my-wall", arg, ev);
-}, 'facebook - 自分のウォール', true);
-
-key.setViewKey([',', 'f', 'f'], function (ev, arg) {
-    ext.exec("facebook-show-friends-wall", arg, ev);
-}, 'facebook - 友達のウォール', true);
-
-key.setViewKey([',', 'f', 'p'], function (ev, arg) {
-    ext.exec("facebook-post-text", arg, ev);
-}, 'facebook - 投稿', true);
-
-key.setViewKey([',', 'f', 'P'], function (ev, arg) {
-    ext.exec("facebook-post-this-page", arg, ev);
-}, 'facebook - 表示中のページを投稿', true);
-
-key.setViewKey([',', 'f', 'F'], function (ev, arg) {
-    ext.exec("facebook-post-to-friends-wall", arg, ev);
-}, 'facebook - 友達のウォールに投稿', true);
-
-key.setViewKey([',', 'f', 'm'], function (ev, arg) {
-    ext.exec("facebook-show-inbox", arg, ev);
-}, 'facebook - メッセージを表示', true);
-
-key.setViewKey([',', 'g', 'i'], function (ev, arg) {
-    ext.exec("gs-in", arg, ev);
-}, 'Group session In', true);
-
-key.setViewKey([',', 'g', 'o'], function (ev, arg) {
-    ext.exec("gs-out", arg, ev);
-}, 'Group session Out', true);
-
-key.setViewKey([',', ',', 'g'], function (ev, arg) {
-    ext.exec("login-manager-login", "google ", ev);
-}, 'Log In (google.com)', true);
-
-key.setViewKey([',', ',', 'h'], function (ev, arg) {
-    ext.exec("login-manager-login", "hatena ", ev);
-}, 'Log In (hatena)', true);
-
-key.setViewKey([',', ',', 'l'], function (ev, arg) {
-    ext.exec("login-manager-login", arg, ev);
-}, 'Log In (All)', true);
-
-key.setViewKey([',', ',', 'L'], function (ev, arg) {
-    ext.exec("login-manager-logout", arg, ev);
-}, 'Log Out (LoginManager)', true);
-
-key.setViewKey([',', 'a', 'l'], function (ev, arg) {
-    ext.exec("foxage2ch-show-threads");
-}, 'FoxAge2ch - Show threads', true);
-
-key.setViewKey([',', 'a', 'r'], function (ev, arg) {
-    ext.exec("foxage2ch-check-updates");
-}, 'FoxAge2ch - Check updates', true);
-
-key.setViewKey([',', 'a', 'o'], function (ev, arg) {
-    ext.exec("foxage2ch-open-updates");
-}, 'FoxAge2ch - Show updates', true);
-
 key.setViewKey([',', 'm', 'm'], function (ev, arg) {
     ext.exec("linker-send-current-url");
 }, 'Linker- Send current url to Mobile', true);
@@ -980,7 +771,7 @@ key.setEditKey('C-]', function (ev, arg) {
     ext.exec("abbreviations-expand", arg, ev);
 }, '略語を挿入');
 
-key.setEditKey('C-[', function (ev, arg) {
+key.setEditKey(['C-e', 'C-h'], function (ev, arg) {
     ext.exec("input-html-tag", arg, ev);
 }, 'HTMLタグを挿入');
 
@@ -1000,11 +791,7 @@ key.setEditKey('C-w', function (ev, arg) {
     ext.exec('delete-backward-word', arg, ev);
 }, '前の一単語を削除');
 
-key.setEditKey('C-m', function (ev, arg) {
-    ext.exec('open-line', arg, ev);
-}, '行を開く (Open line)');
-
-key.setEditKey('C-j', function (ev, arg) {
+key.setEditKey([['C-m'], ['C-j']], function (ev, arg) {
     ext.exec('open-line', arg, ev);
 }, '行を開く (Open line)');
 
@@ -1080,14 +867,6 @@ key.setCaretKey('y', function (ev, arg) {
 key.setCaretKey([',', 'r'], function (ev, arg) {
     ext.exec("kungfloo-reblog-dwim", arg, ev);
 }, 'Kungfloo - Reblog', true);
-
-key.setCaretKey([',', 'e'], function (ev, arg) {
-    let selected = (document.commandDispatcher.focusedWindow || gBrowser.contentWindow).getSelection().toString();
-    if (selected.length > 0)
-        window.evernote_doAction(document.popupNode, 'CLIP_ACTION_SELECTION');
-    else
-        window.evernote_doAction(document.popupNode, 'CLIP_ACTION_FULL_PAGE');
-}, 'Evernote Clip', true);
 
 key.setCaretKey('z', function (ev, arg) {
     (document.commandDispatcher.focusedWindow || gBrowser.contentWindow).getSelection().QueryInterface(Ci.nsISelection2).scrollIntoView(Ci.nsISelectionController.SELECTION_ANCHOR_REGION, true, 50, 50);

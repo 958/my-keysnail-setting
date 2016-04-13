@@ -104,7 +104,7 @@ ext.add("edit-userchrome-css", function(){
 ext.add("google-search", function(ev, arg) {
     let engines = util.suggest.getEngines();
     let suggestEngines = [util.suggest.ss.getEngineByName("Google")];
-    util.suggest.searchWithSuggest(engines[0], suggestEngines, "tab");
+    util.suggest.searchWithSuggest(suggestEngines[0], suggestEngines, "tab");
 }, "Google search");
 
 ext.add("google-search-in-site", function(ev, arg) {
@@ -112,14 +112,14 @@ ext.add("google-search-in-site", function(ev, arg) {
     let engines = util.suggest.getEngines();
     let suggestEngines = [util.suggest.ss.getEngineByName("Google")];
     prompt.reader({
-        message    : util.format("Search [%s]:", engines[0].name + ' (' + host + ')'),
+        message    : util.format("Search [%s]:", suggestEngines[0].name + ' (' + host + ')'),
         group      : "web-search",
         flags      : [0, 0],
         style      : ["", style.prompt.url],
         completer  : completer.fetch.suggest(suggestEngines, true),
         callback   : function (query) {
             if (query) {
-                let uri = engines[0].getSubmission(query + ' site:' + host, null).uri.spec;
+                let uri = suggestEngines[0].getSubmission(query + ' site:' + host, null).uri.spec;
                 openUILinkIn(uri, "tab");
             }
         }

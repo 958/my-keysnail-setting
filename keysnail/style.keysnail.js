@@ -1,18 +1,3 @@
-/*
-let (button = document.getElementById("appmenu-button")) {
-    if (button)
-        button.label = 'KeySnail';
-}
-style.register(<><![CDATA[
-    #appmenu-button {
-        background-image: -moz-linear-gradient(rgb(155, 51, 115), rgb(115, 11, 75) 95%) !important;
-        border-color: rgba(95, 0, 55, 0.9) !important;
-    }
-    #appmenu-button:hover:not(:active):not([open]) {
-        box-shadow: 0pt 1px 0pt rgba(255, 255, 255, 0.1) inset, 0pt 0pt 2px 1px rgba(205, 101, 165, 0.7) inset, 0pt -1px 0pt rgba(205, 101, 165, 0.5) inset !important;
-    }
-}}></>);
-*/
 style.register('\
     /* 選択中行のスタイル */\
     #keysnail-completion-list listitem[selected="true"], #keysnail-completion-list:focus>listitem[selected="true"] {\
@@ -22,37 +7,14 @@ style.register('\
     #keysnail-prompt-textbox *|input {\
         ime-mode : inactive !important;\
     }\
-    /* urlbar の高さを調整 */\
-    #urlbar {\
-        /*margin: 0 !important;*/\
-        /*border: none !important;*/\
-    }\
-    #urlbar>toolbarbutton, #urlbar dropmarker {\
-        display: none !important;\
-    }\
-    .urlbar-icon {\
-        /*padding:0 !important;*/\
-    }\
-    #addon-bar{\
-        height: 26px !important;\
-    }\
-    /* アドオンバーの閉じるボタンを非表示に */\
-    #addonbar-closebutton {\
+    /* タブ一覧ボタンを非表示に */\
+    #alltabs-button {\
         display: none !important;\
     }\
     /* タブの閉じるボタンを非表示に */\
     toolbarbutton.tab-close-button{\
         display: none !important;\
     }\
-    /* Vertical Tabs */\
-    .tabbrowser-tab{\
-        min-width:16px !important;\
-    }\
-    /*\
-    #verticaltabs-splitter{\
-        margin-bottom:0px !important;\
-    }\
-    */\
 ');
 
 style.register('\
@@ -73,4 +35,38 @@ style.register("\
         visibility: collapse !important;\
     }\
 ", [style.XHTML, style.XUL].join(""), true);
+
+var addonBar = document.getElementById('addon-bar');
+var navBar = document.getElementById('nav-bar');
+if (navBar && addonBar) {
+    navBar.insertBefore(addonBar, document.getElementById('PanelUI-button'));
+}
+style.register('\
+    #RIL_toolbar_button {\
+        display: none !important;\
+    }\
+    #nav-bar .toolbarbutton-1:not([type=menu-button]),\
+    #nav-bar .toolbarbutton-1 > .toolbarbutton-menubutton-button,\
+    #nav-bar .toolbarbutton-1 > .toolbarbutton-menubutton-dropmarker {\
+        padding: 0 !important;\
+    }\
+    #back-button {\
+        margin: 1px !important;\
+    }\
+    #nav-bar {\
+        padding: 2px !important;\
+    }\
+    #status-bar {\
+        -moz-appearance: none !important;\
+        background-color: transparent !important;\
+        border: none !important;\
+    }\
+    statusbarpanel {\
+        -moz-appearance: none !important;\
+        border: none !important;\
+    }\
+    #browser-bottombox {\
+        border-top: rgb(160, 160, 160) 1px solid !important;\
+    }\
+');
 
